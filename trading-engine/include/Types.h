@@ -14,8 +14,12 @@ import <optional>
  */
 export {
 
+namespace te {
+
 union InitializationConfig {
     std::string file_path;
 };
+
+}   // end `namespace te`
 
 }   // end `export` block
