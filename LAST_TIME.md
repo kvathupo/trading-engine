@@ -1,4 +1,10 @@
 # Last Time
-* Get modules working
-    - [Link](https://github.com/alexpanter/modules_testing/tree/master) of experiments
-    - Get newer version of g++
+
+# What not to worry about for now
+In order of decreasing relevance:
+* Running metabacktests
+    * Intraday timing granularity
+* Order book
+* Matching Engine
+    * Assume perfect for now
+* Passing in fixed buffer to world init would be fun
