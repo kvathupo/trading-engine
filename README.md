@@ -23,6 +23,10 @@ funds), then error. Else, mark filled or not.
     Inputs: Universe (global variable)
 3. 
 # Developer Resources
+* How to compile (until I setup CMake):
+```bash
+g++ -fmodules-ts -std=c++20 -Wall ./src/main.cpp -I include/
+```
 * Naming convention:
 https://google.github.io/styleguide/cppguide.html
     - Use camelCase for functions instead
