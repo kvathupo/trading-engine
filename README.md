@@ -13,18 +13,31 @@ Inputs to simulation:
         Inputs: portfolio system
         1. For every exchange, for every asset,
             i. Update price, update order book
-            ii. Matching engine ticks
-                1. For all portfolios, iterate over orders. If order is invalid (insufficient
+    ii. Matching engine ticks
+        1. For all portfolios, iterate over orders. If order is invalid (insufficient
 funds), then error. Else, mark filled or not.
-    ii. Portfolio system ticks
+    iii. Portfolio system ticks
         1. Read fills, and update balance and held instruments.
         2. Instrument values update (not needed if pointer to pricing system `curr_price` held)
-    iii. Algorithm system ticks
+    iv. Algorithm system ticks
     Inputs: Universe (global variable)
 3. 
+# Developer Resources
+* Naming convention:
+https://google.github.io/styleguide/cppguide.html
+    - Use camelCase for functions instead
+* Stuff to experiment with:
+    - Concepts and Constraints
+* How to compile a [module](https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Modules.html):
+```bash
+g++ -fmodules-ts -x c++-system-header iostream
+```
 # Roadmap
 Immediate use-case: currency swaps
 1. Write a basic example using historical data from Kraken
+    - Hardcode the search paths for tickers. From a directory `./data-sources/`, have directories
+      for individual tickers. Have directories contain CSVs.
+    - Figure out logging
 2. Worry about reproducibility: CMake, Conan, Docker
 3. Write data feed on live data
 
