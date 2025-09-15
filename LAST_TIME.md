@@ -1,4 +1,9 @@
 # Last Time
+* Setting up CMake
+    - Running into issue where cmake is not finding the gcm cache. Need to bing
+for a cmake lists file that uses gcm caches
+* Set up gtest
+* Write World timing test
 
 # What not to worry about for now
 In order of decreasing relevance:
