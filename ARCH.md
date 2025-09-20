@@ -25,6 +25,3 @@ funds), then error. Else, mark filled or not.
 exported to gtest.
 ## Build Infra
 * First, compile all module interface units. Shuffle them into the gcm cache.
-### To Do
-* Add `.txt` file of required standard library modules. In CMake, check if these are in the 
-gcm cache. If not, generate them.
