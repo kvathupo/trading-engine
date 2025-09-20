@@ -19,7 +19,8 @@ First, create a symlink to your global gcm cache:
 MERLIN:~/repos/trading-engine$ mkdir gcm.cache
 MERLIN:~/repos/trading-engine$ ln -fs ~/gcm.cache gcm.cache
 ```
-Then, create an out-of-source build for cmake:
+Then, create an out-of-source build for cmake. Note that if you lack a required
+standard library module, then it will be built into your gcm cache.
 ```bash
 MERLIN:~/repos/trading-engine$ mkdir build
 MERLIN:~/repos/trading-engine$ cd build
