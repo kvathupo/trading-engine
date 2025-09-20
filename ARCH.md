@@ -1,6 +1,5 @@
 # Architecture overview
-Main loop:
-
+## Core code
 Inputs to simulation:
 * tick rate, backtest start time, duration
 * matching engine to use
@@ -21,3 +20,11 @@ funds), then error. Else, mark filled or not.
         2. Instrument values update (not needed if pointer to pricing system `curr_price` held)
     iv. Algorithm system ticks
     Inputs: Universe (global variable)
+## Testing
+* Eschew the use of `private` for `protected` in order to create shims that are exclusively
+exported to gtest.
+## Build Infra
+* First, compile all module interface units. Shuffle them into the gcm cache.
+### To Do
+* Add `.txt` file of required standard library modules. In CMake, check if these are in the 
+gcm cache. If not, generate them.
