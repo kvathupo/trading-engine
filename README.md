@@ -8,6 +8,7 @@ Immediate use-case: currency swaps
 3. Write data feed on live data
 # Developer Resources
 ## Prerequisites
+* Linux
 * A C++20 compliant version of `g++`
 * Ninja
 * CMake
@@ -23,9 +24,10 @@ Then, create an out-of-source build for cmake:
 MERLIN:~/repos/trading-engine$ mkdir build
 MERLIN:~/repos/trading-engine$ cd build
 MERLIN:~/repos/trading-engine/build$ cmake .. -G Ninja
-MERLIN:~/repos/trading-engine/build$ ninja -jn`proc`
+MERLIN:~/repos/trading-engine/build$ ninja -j`nproc`
 ```
 ## Development Guidelines
+* Export core simulation code as modules
 * Naming convention:
 https://google.github.io/styleguide/cppguide.html
     - Use camelCase for functions instead
