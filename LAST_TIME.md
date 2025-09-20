@@ -1,11 +1,8 @@
 # Last Time
-* Setting up CMake
-    - Running into issue where cmake is not finding the gcm cache. Need to bing
-for a cmake lists file that uses gcm caches
-    - https://stackoverflow.com/questions/57300495/how-to-use-c20-modules-with-cmake
-    - target_compile_features
+* Move World to be a module
 * Set up gtest
 * Write World timing test
+* Set up linter
 
 # What not to worry about for now
 In order of decreasing relevance:
@@ -15,3 +12,6 @@ In order of decreasing relevance:
 * Matching Engine
     * Assume perfect for now
 * Passing in fixed buffer to world init would be fun
+
+# Possible Utilities
+* https://github.com/fmtlib/fmt
