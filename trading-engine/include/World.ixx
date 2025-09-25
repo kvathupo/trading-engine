@@ -1,7 +1,9 @@
-#include <chrono>
-#include <utility>
+export module te.World
 
-namespace te {
+import <chrono>;
+import <utility>;
+
+export namespace te {
 
 class World {
 public:

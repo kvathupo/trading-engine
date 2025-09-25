@@ -1,3 +1,8 @@
+#
+#   TODO:
+#       - When upgrading to C++23, add `import std;` support
+#
+
 cmake_minimum_required(VERSION 4.00)
 project(TradingEngine LANGUAGES CXX)
 
@@ -5,6 +10,9 @@ project(TradingEngine LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS False)
+# Maybe not needed when I get a compatible g++ version?
+# Needs to be included before a target/project desgination anyways!
+#set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(GCM_CACHE_DIR ${CMAKE_SOURCE_DIR}/gcm.cache/gcm.cache)  # messed up symlink?
 
 # Populate gcm.cache with required standard library modules
