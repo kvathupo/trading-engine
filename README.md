@@ -50,6 +50,10 @@ g++ -std=c++20 -fmodules-ts test.cpp -fmodule-mapper="|@g++-mapper-server -r./gc
 ```
 
 # Resources
+## Dev Setup
+* How to install [newer versions](https://www.dedicatedcore.com/blog/install-gcc-compiler-ubuntu/)
+of GCC on Ubuntu
+## Programming
 * Great answer, see the U alberta resource for assumptions, and how to model an exchange matching
 engine, which spits out quotes, trades, and orders:
     https://quant.stackexchange.com/a/73841
