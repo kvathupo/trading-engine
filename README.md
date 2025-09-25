@@ -9,9 +9,10 @@ Immediate use-case: currency swaps
 # Developer Resources
 ## Prerequisites
 * Linux
-* A C++20 compliant version of `g++`
-* Ninja
-* CMake
+* GCC 14 or later (for CMAKE's module scanning support to resolve the 
+[module import problem](https://www.youtube.com/watch?v=7WK42YSfE9s)
+* Ninja 1.13.1 or later (full CMAKE's module workflow)
+* CMake 4 or later
 
 ## Building
 First, create a symlink to your global gcm cache:
