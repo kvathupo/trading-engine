@@ -1,8 +1,7 @@
 # Last Time
-* Building g++14 (earliest version compatible with module scanning, which is used to 
-solve the problem of module import order, see 
-https://www.youtube.com/watch?v=7WK42YSfE9s)
-    - GCC PPAs and ubuntu's universe repo don't have gcc 14 on 22.04...
+* Fix auto-module compilation
+* CMake with modules talk:
+https://www.youtube.com/watch?v=7WK42YSfE9s
 * Move World to be a module
 * Set up gtest
 * Write World timing test
