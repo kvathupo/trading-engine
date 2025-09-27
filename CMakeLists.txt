@@ -1,5 +1,6 @@
 #
 #   TODO:
+#       - Redo grabbing the major version of cxx compiler when grepping for CMIs
 #       - When upgrading to C++23, add `import std;` support
 #
 
@@ -13,7 +14,10 @@ set(CMAKE_CXX_EXTENSIONS False)
 # Maybe not needed when I get a compatible g++ version?
 # Needs to be included before a target/project desgination anyways!
 #set(CMAKE_CXX_SCAN_FOR_MODULES ON)
-set(GCM_CACHE_DIR ${CMAKE_SOURCE_DIR}/gcm.cache/gcm.cache)  # messed up symlink?
+
+# This cannot be an absolute directory! The GCC mapper server will fail to write
+# CMIs if so (as of gcc 14)
+set(GCM_CACHE_DIR ${CMAKE_SOURCE_DIR}/gcm.cache/gcm.cache)
 
 # Populate gcm.cache with required standard library modules
 set(REQUIRED_STD_MODULES
@@ -41,7 +45,7 @@ foreach(STD_MODULE IN LISTS REQUIRED_STD_MODULES)
             execute_process(
                 COMMAND bash -c "${CMAKE_CXX_COMPILER} -std=c++20 -fmodules-ts -x \
                     c++-system-header ${STD_MODULE} -fmodule-mapper=\"|@g++-mapper-server \
-                    -r${GCM_CACHE_DIR}\""
+                    -r${GCM_CACHE_DIR} --noisy\""
                 RESULT_VARIABLE GEN_EXIT_CODE
             )
             if (GEN_EXIT_CODE EQUAL 1)
@@ -74,6 +78,6 @@ add_subdirectory(trading-engine)
 add_executable(backtest.out
     src/main.cpp
 )
-target_link_libraries(backtest.out PRIVATE
-    trading-engine
-)
+#target_link_libraries(backtest.out PRIVATE
+#    trading-engine
+#)
