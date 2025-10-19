@@ -10,7 +10,7 @@ public:
     bool tick(const std::chrono::day& deltaTime);
 
 private:
-    std::optional<std::chrono::year_month_day> start,
+    std::optional<std::chrono::year_month_day> start;
     std::optional<std::chrono::years> duration;
 };
 

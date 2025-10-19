@@ -39,7 +39,7 @@ https://google.github.io/styleguide/cppguide.html
 ```bash
 g++ -std=c++20 -fmodules-ts -x c++-system-header string iostream -fmodule-mapper="|@g++-mapper-server -r./gcm.cache"
 ```
-    * I'm not sure if absolute pathing is supported or if I'm on an old gcc version? Whenever I 
+* I'm not sure if absolute pathing is supported or if I'm on an old gcc version? Whenever I 
 attempt to use absolute pathing, a single-quotation mark is prepended to my input `gcm.cache`, and
 a subdirectory is generated from wherever I run the command, e.g. `'~` most annoyingly!
     * Compiling multiple modules is finnicky. I get code errors, presumably from the mapper service
