@@ -1,7 +1,5 @@
 include_directories(include)
 include(FetchContent)
-# Maybe not needed when I get a compatible g++ version?
-#set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 # Hash to v1.17
 FetchContent_Declare(
@@ -15,9 +13,12 @@ FetchContent_MakeAvailable(googletest)
 add_library(trading-engine STATIC)
 target_sources(trading-engine
     PUBLIC
-    FILE_SET cxx_modules TYPE CXX_MODULES
+    FILE_SET core_systems TYPE HEADERS
+    BASE_DIRS
+    include
     FILES
-    include/World.ixx
+    include/World.hpp
+
     PRIVATE
     src/World.cpp
 )

@@ -1,9 +1,7 @@
-export module te.World
+#include <chrono>
+#include <utility>
 
-import <chrono>;
-import <utility>;
-
-export namespace te {
+namespace te {
 
 class World {
 public:
@@ -12,7 +10,7 @@ public:
     bool tick(const std::chrono::day& deltaTime);
 
 private:
-    std::optional<std::chrono::year_month_day> start,
+    std::optional<std::chrono::year_month_day> start;
     std::optional<std::chrono::years> duration;
 };
 

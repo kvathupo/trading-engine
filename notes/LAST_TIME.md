@@ -1,10 +1,8 @@
 # Last Time
-* Fix auto-module compilation
-* CMake with modules talk:
-https://www.youtube.com/watch?v=7WK42YSfE9s
-* Move World to be a module
 * Set up gtest
 * Write World timing test
+* Move World to be a module?
+
 * Set up linter
 
 # What not to worry about for now

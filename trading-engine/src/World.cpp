@@ -1,10 +1,14 @@
-module te.World
+#include "World.hpp"
 
-bool te::World::init(const std::chrono::year_month_day& start,
+namespace te {
+
+bool World::init(const std::chrono::year_month_day& start,
         const std::chrono::years& duration) {
     return true;
 }
 
-bool te::World::tick(const std::chrono::day& deltaTime) {
+bool World::tick(const std::chrono::day& deltaTime) {
     return true;
+}
+
 }
