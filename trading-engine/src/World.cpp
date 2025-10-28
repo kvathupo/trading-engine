@@ -7,7 +7,8 @@ bool World::init(const std::chrono::year_month_day& start,
     return true;
 }
 
-bool World::tick(const std::chrono::day& deltaTime) {
+template<typename T>
+bool World::tick(const std::chrono::duration<T>& deltaTime) {
     return true;
 }
 
