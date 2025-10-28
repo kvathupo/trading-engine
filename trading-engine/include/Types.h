@@ -3,23 +3,22 @@
  *  Used for type-checking of template inputs.
  */
 
-export module types;
-
-import <concepts>
-import <optional>
+#include <concepts>
+#include <optional>
+#include <string>
+#include <type_traits>
 
 
 /*
  *  Used to initialize a financial instrument from either a file or endpoint.
  */
-export {
-
 namespace te {
+
+template<typename T>
+concept Arithmetic = std::is_arithmetic<T>::value;
 
 union InitializationConfig {
     std::string file_path;
 };
 
 }   // end `namespace te`
-
-}   // end `export` block
