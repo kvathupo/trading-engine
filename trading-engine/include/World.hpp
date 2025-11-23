@@ -10,8 +10,7 @@ public:
     World() = default;
     bool init(const std::chrono::year_month_day& start,
         const std::chrono::years& duration);
-    template<typename T>
-    bool tick(const std::chrono::duration<T>& deltaTime);
+    bool tick(const std::chrono::duration<double>& deltaTime);
 
 private:
     std::optional<std::chrono::year_month_day> start = {};
