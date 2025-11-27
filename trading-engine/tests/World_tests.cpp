@@ -1,9 +1,13 @@
 #include <gtest/gtest.h>
 #include "World.hpp"
 
-TEST(WorldTest, tick) {
-    using namespace te;
+using namespace std::chrono;
+using namespace te;
+
+TEST(WorldTest, init) {
     World w;
-    std::chrono::seconds s(1);
-    EXPECT_TRUE(w.tick(s));
+    const year_month_day start_date = year{2025}/January/1d;
+    const std::size_t num_days {2};
+    EXPECT_TRUE(w.init(start_date, num_days));
+    EXPECT_FALSE(w.init(start_date, num_days + 2));
 }
