@@ -1,17 +1,25 @@
+#include <Types.h>
+
 #include <chrono>
 #include <utility>
 
 namespace te {
 
-class World {
-public:
+struct World {
+    World() = default;
     bool init(const std::chrono::year_month_day& start,
-        const std::chrono::years& duration);
-    bool tick(const std::chrono::day& deltaTime);
+        const std::size_t& num_days);
+    bool tick(const std::chrono::seconds& delta_time);
 
-private:
-    std::optional<std::chrono::year_month_day> start;
-    std::optional<std::chrono::years> duration;
+/*  
+ *  @TODO(kvathupo): Initialize DataParser pointing to that path
+ *  bool add_data(const std::string& path_to_dir, std::shared_ptr<DataParser> parser)
+ *
+ */
+    std::optional<std::chrono::year_month_day> start = {};
+    std::optional<std::chrono::minutes> duration = {};
+    // @TODO(kvathupo): Move to dedicated header to not repeat time defs in datasystem, etc?
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> curr_time;
 };
 
 }

@@ -1,7 +1,6 @@
 # Last Time
 * Set up gtest
 * Write World timing test
-* Move World to be a module?
 
 * Set up linter
 
