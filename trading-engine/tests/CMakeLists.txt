@@ -1,6 +1,6 @@
 #
 #   TODO:
-#       - Use file sets
+#       - Use file sets, instead of `add_executable()`
 #
 
 
