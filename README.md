@@ -1,11 +1,35 @@
 # Roadmap
 Immediate use-case: currency swaps
 1. Write a basic example using historical data from Kraken
-    - Hardcode the search paths for tickers. From a directory `./data-sources/`, have directories
-      for individual tickers. Have directories contain CSVs.
-    - Figure out logging
+    - Systems (to do in order)
+        - World
+            - Requirements: Time ticking is correct
+        - Data System
+            - Have the user pass in an unordered map of directory to data parser type for now.
+            In the future, read in YAML? (but no typing!)
+            - Data Parser type
+                - Role: I/O, getting current price
+                - Inputs: File name
+                - API:
+                    - Get ticker name, granularity, first date, last date, if valid (corrupt data, read failure),
+                    curr price (time, price tuple)
+                - Requirements: Expose default parser types
+            - Requirements:
+                - Fail World init if any data parser bad
+                - Update price correctly
+        - Pricing System
+            - Role: Aggregate prices by ticker, exchange, and instrument type.
+            - API:
+                - Peek next time, get curr price (return (time, price) tuple for (exchange, ticker) tuple), tick (update all prices)
+            - Internals:
+                - Holds Data System
+            - Instrument Type (default to swap)
+        - Portfolio
+        - Logging
+        - Benchmarking system
 2. Worry about reproducibility: CMake, Conan, Docker
-3. Write data feed on live data
+3. Abstract data parsers into yaml input
+4. Write data feed on live data
 # Developer Resources
 ## Prerequisites
 * Linux
