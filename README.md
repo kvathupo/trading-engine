@@ -20,8 +20,10 @@ Immediate use-case: currency swaps
         - Logging
         - Benchmarking system
 2. Worry about reproducibility: CMake, Conan, Docker
-3. Abstract data parsers into yaml input
-4. Write data feed on live data
+3. Clean up how CSV tests are handled by (1) removing them from source control, (2) downloading them from a bucket
+come test time _locally_. That way, we don't pollute shit.
+4. Abstract data parsers into yaml input
+5. Write data feed on live data
 # Developer Resources
 ## Prerequisites
 * Linux
