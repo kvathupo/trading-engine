@@ -3,22 +3,14 @@ Immediate use-case: currency swaps
 1. Write a basic example using historical data from Kraken
     - Systems (to do in order)
         - World
-            - Requirements: Time ticking is correct
         - Data System
-            - Have the user pass in an unordered map of directory to data parser type for now.
-            In the future, read in YAML? (but no typing!)
             - Data Parser type
-                - Role: I/O, getting current price
-                - Inputs: File name
-                - API:
-                    - Get ticker name, granularity, first date, last date, if valid (corrupt data, read failure),
-                    curr price (time, price tuple)
-                - Requirements: Expose default parser types
+                - Requirements: Expose default parser type
             - Requirements:
                 - Fail World init if any data parser bad
                 - Update price correctly
         - Pricing System
-            - Role: Aggregate prices by ticker, exchange, and instrument type.
+            - Role: Get current price. Aggregate prices by ticker, exchange, and instrument type.
             - API:
                 - Peek next time, get curr price (return (time, price) tuple for (exchange, ticker) tuple), tick (update all prices)
             - Internals:
