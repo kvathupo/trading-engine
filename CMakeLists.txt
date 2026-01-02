@@ -1,9 +1,3 @@
-#
-#   TODO:
-#       - Redo grabbing the major version of cxx compiler when grepping for CMIs
-#       - When upgrading to C++23, add `import std;` support
-#
-
 cmake_minimum_required(VERSION 4.00)
 project(TradingEngine LANGUAGES CXX)
 
