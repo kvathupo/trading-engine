@@ -4,14 +4,25 @@
 using namespace std::chrono;
 using namespace te;
 
-TEST(WorldTest, init) {
+/*
+ *  Tests World init is correct on bad date, already initialized, and valid
+ *  date.
+ */
+TEST(WorldTest, init_date_based) {
     World w;
     const year_month_day start_date = year{2025}/January/1d;
+    const year_month_day bad_start_date = year{2025}/November/31d;
     const std::size_t num_days {2};
+
+    EXPECT_FALSE(w.init(bad_start_date, num_days));
     EXPECT_TRUE(w.init(start_date, num_days));
     EXPECT_FALSE(w.init(start_date, num_days + 2));
 }
 
+/*
+ *  Tests that the World ticks at the input period, final world time is
+ *  correct across multiple ticks.
+ */
 TEST(WorldTest, tick) {
     World w;
     const year_month_day start_date = year{2025}/January/1d;
