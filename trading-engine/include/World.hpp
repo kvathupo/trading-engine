@@ -1,7 +1,9 @@
-#include <Types.h>
-
+#pragma once
 #include <chrono>
 #include <utility>
+
+#include "Types.h"
+
 
 namespace te {
 
@@ -23,4 +25,4 @@ struct World {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> curr_time;
 };
 
-}
+}       // end namespace te
