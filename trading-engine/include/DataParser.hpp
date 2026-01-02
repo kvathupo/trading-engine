@@ -9,7 +9,7 @@
 
 namespace te {
 
-class DataParser {
+struct DataParser {
     DataParser() = default;
     virtual bool init(InitializationConfig cfg) = 0;
     virtual ~DataParser() = default;
