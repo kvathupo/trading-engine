@@ -11,7 +11,7 @@ namespace te {
 
 struct DataParser {
     DataParser() = default;
-    virtual bool init(InitializationConfig cfg) = 0;
+    virtual bool init(const InitializationConfig& cfg) = 0;
     virtual bool is_data_good() = 0;
     virtual ~DataParser() = default;
 

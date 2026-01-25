@@ -7,7 +7,7 @@ namespace te {
 class KrakenParser : public DataParser {
 public:
     KrakenParser() = default;
-    virtual bool init(InitializationConfig cfg) override;
+    virtual bool init(const InitializationConfig& cfg) override;
     virtual bool is_data_good() override;
     virtual ~KrakenParser() = default;
 

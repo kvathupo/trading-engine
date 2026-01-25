@@ -2,7 +2,7 @@
 
 namespace te {
 
-bool KrakenParser::init(InitializationConfig cfg) {
+bool KrakenParser::init(const InitializationConfig& cfg) {
     return true;
 }
 
