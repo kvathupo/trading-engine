@@ -9,6 +9,7 @@
 #include <optional>
 #include <string>
 #include <type_traits>
+#include <variant>
 
 
 /*
@@ -19,10 +20,7 @@ namespace te {
 template<typename T>
 concept Arithmetic = std::is_arithmetic<T>::value;
 
-union InitializationData {
-    std::string path;
-    std::string end_point;
-};
+using FilePath = std::string;
 
 enum class InitializationType : std::uint_fast8_t {
     FileIo,
@@ -31,7 +29,7 @@ enum class InitializationType : std::uint_fast8_t {
 };
 
 struct InitializationConfig {
-    InitializationData data;
+    std::variant<FilePath> data;
     InitializationType type;
 };
 
