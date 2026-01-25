@@ -8,9 +8,12 @@ target_sources(trading-engine
     include
     FILES
     include/World.hpp
+    include/DataParser.hpp
+    include/KrakenParser.hpp
 
     PRIVATE
     src/World.cpp
+    src/KrakenParser.cpp
 )
 
 add_subdirectory(tests)

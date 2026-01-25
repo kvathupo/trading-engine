@@ -13,6 +13,7 @@ add_executable(run_tests)
 
 target_sources(run_tests
     PRIVATE
+    KrakenParser_tests.cpp
     World_tests.cpp
 )
 target_link_libraries(run_tests PRIVATE
