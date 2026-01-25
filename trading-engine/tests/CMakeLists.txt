@@ -1,9 +1,3 @@
-#
-#   TODO:
-#       - Use file sets, instead of `add_executable()`
-#
-
-
 include(FetchContent)
 
 # Hash to v1.17
@@ -15,8 +9,13 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(run_tests.out World_tests.cpp)
-target_link_libraries(run_tests.out PRIVATE
+add_executable(run_tests)
+
+target_sources(run_tests
+    PRIVATE
+    World_tests.cpp
+)
+target_link_libraries(run_tests PRIVATE
     gtest
     gtest_main
 
