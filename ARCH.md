@@ -17,7 +17,7 @@ Outputs:
     0. World adds data
 1. World initializes
     0. Init data system
-        Inputs: unordered map from string to Data Parser type (has methods to get exchange, ticker, granularity, etc.)
+        Inputs: unordered map from string (to dir) to Data Parser type (has methods to get exchange, ticker, granularity, etc.)
     i. Call pricing system init
         1. Iterate over all CSV files.
         2. Populate data
@@ -46,6 +46,8 @@ funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but
         - Possibly buffer of time or just curr_time, start_time, end_time
     - Member functions (override these abstract ones):
 * Data System
+    - Role: Given data parsers of varying granularity, return the current price of an asset (given as a string
+      exchange, ticker pair)
     - Members vars:
         - Hash map from <exchange,ticker> string to vector queue of unique pointers of data parser instances. The 
         front of the queue represents the oldest data. As the sim progresses, delete unneeded data.
@@ -53,6 +55,16 @@ funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but
         - Get price
             - Given ticker and exchange as strings, just call hash map
             - Given ticker, iterate over all exchanges
+* Price System
+    - Role: 
+        - Get a list of all assets in a type-safe manner (Asset `class` with instrument type `enum` and ticket 
+          `string`)
+            - Get a list of all assets on an exchange
+        - Given a type-safe Asset class, return all possible prices with fees per liquidity source (can be multiple
+          per exchange if DEX)
+    - Member funcs:
+        - 
+        - Get price
 ## Testing
 * Eschew the use of `private` for `protected` in order to create shims that are exclusively
 exported to gtest.
