@@ -6,7 +6,7 @@
 TEST(KrakenParser, parse) {
     te::KrakenParser parser;
     te::InitializationConfig initConfig = {
-        .data = "data/kraken/OHLCVT_Q1_2023/BTTUSD_60.csv",
+        .data = "./data/kraken/OHLCVT_Q1_2023/BTTUSD_60.csv",
         .type = te::InitializationType::FileIo
     };
     EXPECT_TRUE(parser.init(initConfig));

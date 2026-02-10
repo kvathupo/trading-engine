@@ -23,7 +23,8 @@ public:
         std::uint_fast8_t depth) override;
 
 private:
-    std::string file_name{""};
+    // Relative or full
+    std::string file_path{""};
     
     uint8_t buffer_idx {0};
     std::array<float, 32> prices;

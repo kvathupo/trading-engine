@@ -10,8 +10,7 @@ namespace te {
 bool KrakenParser::init(const InitializationConfig& cfg) {
     switch (cfg.type) {
         case te::InitializationType::FileIo:
-            file_name = std::get<te::FilePath>(cfg.data);
-            std::println("File type supported!");
+            file_path = std::get<te::FilePath>(cfg.data);
             break;
         default:
             std::println(std::cerr, "Initialization type not supported!");
@@ -35,12 +34,15 @@ Exchange KrakenParser::get_exchange() {
 }
 
 std::string KrakenParser::get_ticker() {
+    // capture from the end of string to forward slash (exclusive)
     std::regex re(R"(([^/]+)$)");
     std::smatch m;
 
     // Fails on empty string
-    if (!std::regex_search(file_name, m, re))
+    if (!std::regex_search(file_path, m, re))
         return "";
+    
+    // capture all chars not underscore from string beginning
     re = "(^([^_]+))";
     std::string regex_result(m.str());
     if (!std::regex_search(regex_result, m, re))
@@ -49,13 +51,13 @@ std::string KrakenParser::get_ticker() {
 }
 
 std::optional<float> KrakenParser::get_newest_price() {
-    if (file_name.empty())
+    if (file_path.empty())
         return {};
     return prices[buffer_idx];
 }
 
 std::optional<std::size_t> KrakenParser::get_newest_time()  {
-    if (file_name.empty())
+    if (file_path.empty())
         return {};
     return epoch_times[buffer_idx];
 }
