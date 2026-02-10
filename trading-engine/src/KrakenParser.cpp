@@ -1,6 +1,9 @@
 #include <iostream>
 #include <print>
+#include <filesystem>
 #include <format>
+#include <fstream>
+#include <ranges>
 #include <regex>
 #include "KrakenParser.hpp"
 
@@ -10,7 +13,7 @@ namespace te {
 bool KrakenParser::init(const InitializationConfig& cfg) {
     switch (cfg.type) {
         case te::InitializationType::FileIo:
-            file_path = std::get<te::FilePath>(cfg.data);
+            file_path = std::filesystem::canonical(std::get<te::FilePath>(cfg.data));
             break;
         default:
             std::println(std::cerr, "Initialization type not supported!");
@@ -26,6 +29,18 @@ bool KrakenParser::is_data_good() {
      *      - Fixed tick duration
      *      - High >= Low
      */
+    if (file_path.empty())
+        return false;
+    
+    std::ifstream fstrm(file_path);
+    std::string out_s;
+    while (std::getline(fstrm, out_s)) {
+        std::vector<std::string> column_members = std::views::split(out_s, ',') | std::ranges::to<std::vector<std::string>>();
+        std::println("column_members.size() == {}", column_members.size());
+        std::println("\tcolumn_members[0] == unix_time == {}", column_members[0]);
+        std::println("\tcolumn_members[2] == high == {}", column_members[2]);
+        std::println("\tcolumn_members[3] == low == {}", column_members[3]);
+    }
     return true;
 }
 

@@ -22,3 +22,7 @@ target_link_libraries(run_tests PRIVATE
 
     trading-engine
 )
+
+target_compile_definitions(run_tests PRIVATE
+    TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/"
+)
