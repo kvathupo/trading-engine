@@ -11,7 +11,7 @@ TEST(KrakenParser, parse) {
     };
     EXPECT_TRUE(parser.init(initConfig));
     EXPECT_EQ(parser.get_ticker(), "BTTUSD");
-    EXPECT_EQ(parser.is_data_good(), true);
+    EXPECT_TRUE(parser.is_data_good());
 
     SUCCEED();
 }
