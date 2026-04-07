@@ -22,9 +22,18 @@ public:
     virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side,
         std::uint_fast8_t depth) override;
 
+protected:
+    // If the error code is populated, log a warning and return false
+    bool validate_str_to_num(std::errc& error_code, 
+        const std::string_view& validated_str);
+
 private:
     // Relative or full
     std::string file_path{""};
+    // The minimum granularity for a tick
+    // Ticks may be skipped if there are no trades during that period
+    unsigned long min_tick_s;
+
     
     uint8_t buffer_idx {0};
     std::array<float, 32> prices;
