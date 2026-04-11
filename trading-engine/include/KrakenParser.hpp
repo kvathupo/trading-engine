@@ -2,6 +2,8 @@
 #include "DataParser.hpp"
 #include <array>
 
+#include <gtest/gtest_prod.h>
+
 namespace te {
 
 // @TODO(optim): faster to parse bytes instead of text?
@@ -28,16 +30,22 @@ protected:
         const std::string_view& validated_str);
 
 private:
-    // Relative or full
-    std::string file_path{""};
+    std::string absolute_file_path{""};
     // The minimum granularity for a tick
-    // Ticks may be skipped if there are no trades during that period
-    unsigned long min_tick_s;
+    // There is no guarantee that consecutive rows have a timestamp differing
+    // by `min_tick_s`. If there are no trades during that period, it is omitted.
+    unsigned long min_tick_s {0};
 
     
-    uint8_t buffer_idx {0};
-    std::array<float, 32> prices;
-    std::array<std::size_t, 32> epoch_times;
+    uint8_t buffer_idx{0};
+    std::array<float, 32> prices{};
+    std::array<std::size_t, 32> epoch_times{};
+
+
+    /*
+     *  Declare gtest friends
+     */
+    FRIEND_TEST(KrakenParserTests, parse);
 };
 
 }       // end namespace te

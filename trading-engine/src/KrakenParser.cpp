@@ -20,14 +20,14 @@ bool KrakenParser::init(const InitializationConfig& cfg) {
     bool initialization_succeeded{true};
     switch (cfg.type) {
         case te::InitializationType::FileIo: {
-            file_path = std::filesystem::canonical(std::get<te::FilePath>(cfg.data));
+            absolute_file_path = std::filesystem::canonical(std::get<te::FilePath>(cfg.data));
             
             // Grab minimum tick granularity from file name
             std::regex re(R"(_(\d+)\.csv$)");
             std::smatch m;
-            if (!std::regex_search(file_path, m, re)) {
+            if (!std::regex_search(absolute_file_path, m, re)) {
                 std::println(std::cerr, 
-                    "init failure: Failed to retrieve minimum tick granularity from {}", file_path);
+                    "init failure: Failed to retrieve minimum tick granularity from {}", absolute_file_path);
                 initialization_succeeded = false;
             }
             const auto min_tick_min = std::stoul(m[1]);
@@ -61,11 +61,11 @@ bool KrakenParser::validate_str_to_num(std::errc& error_code, const std::string_
  */
 bool KrakenParser::is_data_good() {
     // Assume file I/O for now
-    if (file_path.empty()) {
-        std::println("file_path variable was unexpectedly empty!");
+    if (absolute_file_path.empty()) {
+        std::println("absolute_file_path variable was unexpectedly empty!");
         return false;
     }
-    std::ifstream fstrm(file_path);
+    std::ifstream fstrm(absolute_file_path);
 
     // Validate file as we read each row
     std::string out_s;
@@ -128,7 +128,7 @@ Exchange KrakenParser::get_exchange() {
 
 std::string KrakenParser::get_ticker() {
     // Assume file I/O for now
-    if (file_path.empty()) {
+    if (absolute_file_path.empty()) {
         std::println(std::cerr, "Cannot get ticker from empty file name");
         return "";
     }
@@ -136,10 +136,10 @@ std::string KrakenParser::get_ticker() {
     // From a path, capture just the file name (exlude the forward slash)
     std::regex re(R"(([^/]+)$)");
     std::smatch m;
-    if (!std::regex_search(file_path, m, re)) {
+    if (!std::regex_search(absolute_file_path, m, re)) {
         std::println(std::cerr, 
             "get_ticker failure: failed to match from end string to forward slash for file {}",
-            file_path);
+            absolute_file_path);
         return "";
     }
     
@@ -152,13 +152,13 @@ std::string KrakenParser::get_ticker() {
 }
 
 std::optional<float> KrakenParser::get_newest_price() {
-    if (file_path.empty())
+    if (absolute_file_path.empty())
         return {};
     return prices[buffer_idx];
 }
 
 std::optional<std::size_t> KrakenParser::get_newest_time()  {
-    if (file_path.empty())
+    if (absolute_file_path.empty())
         return {};
     return epoch_times[buffer_idx];
 }
