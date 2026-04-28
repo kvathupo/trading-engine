@@ -9,9 +9,16 @@
 
 namespace te {
 
+constexpr auto min_sys_time = std::chrono::sys_seconds::min();
+
 struct DataParser {
     DataParser() = default;
-    virtual bool init(const InitializationConfig& cfg) = 0;
+    /*
+     *  Initializes data from feed.
+     *
+     *  @returns true on success.
+     */
+    virtual bool init(const InitializationConfig& cfg) noexcept = 0;
     virtual bool is_data_good() = 0;
     virtual ~DataParser() = default;
 
@@ -20,8 +27,11 @@ struct DataParser {
     virtual std::string get_ticker() = 0;
 
     virtual std::optional<float> get_newest_price() = 0;
-    // In epoch time
-    virtual std::optional<std::size_t> get_newest_time() = 0;
+    /*
+     *  Returns time corresponding to newest price, else min_sys_time on failure.
+     *  Current minimum granularity across data feeds is one second.
+     */
+    virtual std::chrono::sys_seconds get_newest_time() = 0;
     virtual std::optional<std::size_t> get_tick_duration() = 0;
     virtual std::optional<float> get_transaction_fee() = 0;
     virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side,

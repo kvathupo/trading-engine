@@ -16,7 +16,7 @@ namespace te {
 
 // @TODO(kvathupo): use std::from_chars in granularity calc
 // @TODO(kvathupo): add magic_enum as a dep
-bool KrakenParser::init(const InitializationConfig& cfg) {
+bool KrakenParser::init(const InitializationConfig& cfg) noexcept {
     bool initialization_succeeded{true};
     switch (cfg.type) {
         case te::InitializationType::FileIo: {
@@ -157,10 +157,10 @@ std::optional<float> KrakenParser::get_newest_price() {
     return prices[buffer_idx];
 }
 
-std::optional<std::size_t> KrakenParser::get_newest_time()  {
+std::chrono::sys_seconds KrakenParser::get_newest_time()  {
     if (absolute_file_path.empty())
-        return {};
-    return epoch_times[buffer_idx];
+        return min_sys_time;
+    return price_times[buffer_idx];
 }
 
 // @TODO(kvathupo): return the tick duration relative to the last step?

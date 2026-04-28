@@ -27,7 +27,7 @@ TEST(KrakenParserTests, parse) {
     EXPECT_EQ(parser.min_tick_s, 0) << "Incorrect value prior to initialization";
     EXPECT_EQ(parser.buffer_idx, 0) << "Incorrect value prior to initialization";
     EXPECT_TRUE(std::ranges::all_of(parser.prices, [](const auto price) { static int i = 0; ++i; return price == 0; }));
-    EXPECT_TRUE(std::ranges::all_of(parser.epoch_times, [](const auto price) { return price == 0; }));
+    EXPECT_TRUE(std::ranges::all_of(parser.price_times, [](const auto time) { return time.time_since_epoch().count() == 0 ; }));
 
     EXPECT_TRUE(parser.init(initConfig));
 
