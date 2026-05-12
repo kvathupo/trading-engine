@@ -26,6 +26,12 @@ struct DataParser {
     // TODO(optim): return ref to const string
     virtual std::string get_ticker() = 0;
 
+    /*
+     *  Update the internal state to the next data point. 
+     *  @returns
+     *      True on sucess. Else, False on failure or no more data.
+     */
+    virtual bool tick() = 0;
     virtual std::optional<float> get_newest_price() = 0;
     /*
      *  Returns time corresponding to newest price, else min_sys_time on failure.

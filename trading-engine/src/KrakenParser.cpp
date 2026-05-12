@@ -1,4 +1,5 @@
 #include <charconv>
+#include <cstring>
 #include <iostream>
 #include <print>
 #include <filesystem>
@@ -7,6 +8,12 @@
 #include <ranges>
 #include <regex>
 #include <system_error>
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "KrakenParser.hpp"
 
 // @TODO(kvathupo): Handle std::quoted properly with std::formatter
@@ -151,16 +158,140 @@ std::string KrakenParser::get_ticker() {
     return m.str();
 }
 
+KrakenParser::~KrakenParser() {
+    if (mmap_address != nullptr && num_bytes_in_file > 0) {
+        ::munmap(const_cast<char*>(mmap_address), num_bytes_in_file);
+    }
+}
+
+bool KrakenParser::tick() {
+    /*
+     *  1. If prices are empty, attempt to read in 32 prices
+     *  2. Else if index not equal to 31, increment index. If new price
+     *  is not -1, return true.
+     *  3. Else, attempt to read in 32 prices
+     */
+    const std::size_t price_buffer_size{prices.size()};
+    constexpr float kSentinel{-1.0f};
+
+    // Populate mmap pointer on first call
+    if (mmap_address == nullptr) {
+        if (absolute_file_path.empty()) {
+            std::println(std::cerr, "tick: absolute_file_path is empty");
+            return false;
+        }
+        const int file_descriptor = ::open(absolute_file_path.c_str(), O_RDONLY);
+        if (file_descriptor < 0) {
+            std::println(std::cerr, "tick: open failed for {}", absolute_file_path);
+            return false;
+        }
+        struct stat file_metadata{};
+        if (::fstat(file_descriptor, &file_metadata) < 0) {
+            ::close(file_descriptor);
+            std::println(std::cerr, "tick: failed to populate file metadata for {}", absolute_file_path);
+            return false;
+        }
+        num_bytes_in_file = file_metadata.st_size;
+        if (num_bytes_in_file == 0) {
+            ::close(file_descriptor);
+            std::println(std::cerr, "tick: file {} is empty", absolute_file_path);
+            return false;
+        }
+        // Don't use MAP_POPULATE with MADV_SEQUENTIAL. The latter puts all mmap'd page table entries into the kernel's
+        // page reclamation algorithm's inactive LRU. With many open CSVs encroaching on RAM size, this can cause the 
+        // reclamation of pages that currently being pointed to by parsers. Thus, a major page fault anyways after a page
+        // walk!
+        __off_t offset {0};
+        void* maybe_address = ::mmap(nullptr, num_bytes_in_file, PROT_READ, MAP_SHARED_VALIDATE, file_descriptor, offset);
+        ::close(file_descriptor);
+        if (maybe_address == MAP_FAILED) {
+            num_bytes_in_file = 0;
+            std::println(std::cerr, "tick: mmap failed for {}", absolute_file_path);
+            return false;
+        }
+        mmap_address = static_cast<const char*>(maybe_address);
+        ::madvise(const_cast<char*>(mmap_address), num_bytes_in_file, MADV_SEQUENTIAL);
+        // Fall through to load the first chunk.
+    }  else if (prices_idx + 1 < price_buffer_size) {
+        ++prices_idx;
+        return prices[prices_idx] != kSentinel;
+    }
+
+
+    // Read 32 new price values 
+    // Columns: <unix time, open, high, low, close, volume, trades>
+    constexpr std::size_t idx_of_time{0};
+    constexpr std::size_t idx_of_close{4};
+    std::size_t num_rows_parsed{0};
+    while (num_rows_parsed < price_buffer_size && mmap_cursor < num_bytes_in_file) {
+        // Create a string view for the whole row
+        const char* line_start = mmap_address + mmap_cursor;
+        const char* pointer_to_newline = static_cast<const char*>(
+            std::memchr(line_start, '\n', num_bytes_in_file - mmap_cursor));
+        const std::size_t line_len = pointer_to_newline 
+            ? static_cast<std::size_t>(pointer_to_newline - line_start)
+            : (num_bytes_in_file - mmap_cursor);        // Hit EOF
+        std::string_view line(line_start, line_len);
+        // windows-written text files prepend a carriage return to a newline
+        if (line.ends_with('\r')) line.remove_suffix(1);
+        if (line.empty()) break;     // If we hit EOF
+
+        // Move cursor to next row or EOF
+        mmap_cursor += line_len + (pointer_to_newline ? 1 : 0);
+        ++csv_row_idx;
+
+        std::array<std::string_view, 7> column_entries{};
+        std::size_t col_idx{0};
+        for (auto&& col_entry : line | std::views::split(',')) {
+            if (col_idx >= column_entries.size()) {
+                std::println(std::cerr, "tick: Unexpectly parsed less than 7 column entries in row {}", csv_row_idx);
+                return false;
+            }
+            column_entries[col_idx++] = std::string_view{col_entry};
+        }
+        std::uint32_t epoch_s{0};
+        auto t_res = std::from_chars(column_entries[idx_of_time].data(),
+            column_entries[idx_of_time].data() + column_entries[idx_of_time].size(), epoch_s);
+        if (!validate_str_to_num(t_res.ec, column_entries[idx_of_time])) {
+            std::println(std::cerr, "tick: Fatal error parsing time from row {}", csv_row_idx);
+            return false;
+        } 
+
+        float price{0.0f};
+        auto c_res = std::from_chars(column_entries[idx_of_close].data(),
+            column_entries[idx_of_close].data() + column_entries[idx_of_close].size(),
+            price, std::chars_format::general);
+        if (!validate_str_to_num(c_res.ec, column_entries[idx_of_close])) {
+            std::println(std::cerr, "tick: Datal error parsing closing price from row {}", csv_row_idx);
+            return false;
+        }
+
+        prices[num_rows_parsed] = price;
+        price_times[num_rows_parsed] = std::chrono::sys_seconds{
+            std::chrono::seconds{epoch_s}};
+        ++num_rows_parsed;
+    }
+    // Reached EOF
+    if (num_rows_parsed == 0) return false;
+
+    // Set sentinel values
+    for (std::size_t i = num_rows_parsed; i < price_buffer_size; ++i) {
+        prices[i] = kSentinel;
+    }
+    prices_idx = 0;
+    return true;
+}
+
 std::optional<float> KrakenParser::get_newest_price() {
     if (absolute_file_path.empty())
         return {};
-    return prices[buffer_idx];
+    return prices[prices_idx];
 }
 
 std::chrono::sys_seconds KrakenParser::get_newest_time()  {
     if (absolute_file_path.empty())
         return min_sys_time;
-    return price_times[buffer_idx];
+    return price_times[prices_idx];
 }
 
 // @TODO(kvathupo): return the tick duration relative to the last step?
