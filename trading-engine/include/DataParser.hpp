@@ -19,6 +19,10 @@ struct DataParser {
      *  @returns true on success.
      */
     virtual bool init(const InitializationConfig& cfg) noexcept = 0;
+    /*
+     *  Returns false if data in unexpected format.
+     *  Indicates that a parser cannot work with this data source.
+     */
     virtual bool is_data_good() = 0;
     virtual ~DataParser() = default;
 

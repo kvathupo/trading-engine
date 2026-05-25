@@ -1,9 +1,7 @@
 # Last Time
 * Write `KrakenParser` impl
     - Added test data for kraken swaps
-        - tick -> Clean up
-            - Claude wrote mmap ver. Read it and keep (useful to keep all historical data in one big file, if not
-              pulling in other data sources in the future)
+        - tick -> DONE, Cleaned up
         - get new price
         - get time
         - get duration (might need to rethink interface)

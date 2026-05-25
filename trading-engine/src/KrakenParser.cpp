@@ -62,6 +62,7 @@ bool KrakenParser::validate_str_to_num(std::errc& error_code, const std::string_
 
 /*
  *  Requires:
+ *      - Each row contain 7 columns
  *      - High price exceed low price
  *      - Duration between timestamps is an integer multiple of the 
  *  minimum granularity. 
@@ -72,6 +73,7 @@ bool KrakenParser::is_data_good() {
         std::println("absolute_file_path variable was unexpectedly empty!");
         return false;
     }
+    constexpr uint8_t expected_number_of_columns{7};
     std::ifstream fstrm(absolute_file_path);
 
     // Validate file as we read each row
@@ -85,6 +87,8 @@ bool KrakenParser::is_data_good() {
         // Note that fractional shares imply volume <= trades
         std::vector<std::string> column_members = std::views::split(out_s, ',') |
             std::ranges::to<std::vector<std::string>>();
+        if (column_members.size() != expected_number_of_columns) 
+            return false;
         
         // Parse and check high price is greater than low price
         constexpr std::size_t idx_of_high_price{2};
@@ -165,6 +169,10 @@ KrakenParser::~KrakenParser() {
 }
 
 bool KrakenParser::tick() {
+    // Since data is read in chunks of 32 price levels (for each row), 
+    // there may be fewer than 32 rows left. If so, set the remaining
+    // values in the price buffer to this sentinel value to indicate
+    // non-existent data.
     constexpr float kSentinel{-1.0f};
 
     // Populate mmap pointer on first call
@@ -236,19 +244,15 @@ bool KrakenParser::tick() {
         mmap_cursor += row_len + (first_newline_after_row_start ? 1 : 0);
         ++csv_row_idx;
 
-        std::array<std::string_view, 7> column_entries{};
-        std::size_t col_idx{0};
-        for (auto&& col_entry : row | std::views::split(',')) {
-            if (col_idx >= column_entries.size()) {
-                std::println(std::cerr, "tick: Unexpectly parsed less than 7 column entries in row {}", csv_row_idx);
-                return false;
-            }
-            column_entries[col_idx++] = std::string_view{col_entry};
-        }
+        // Split row by column, and assign price and price time
+        std::array<std::string_view, 7> column_entries;
+        std::ranges::copy(row | std::views::split(',')
+            | std::views::transform([](auto&& e) { return std::string_view{e}; }), column_entries.begin());
+
         std::uint32_t epoch_s{0};
-        auto t_res = std::from_chars(column_entries[idx_of_time].data(),
+        auto time_res = std::from_chars(column_entries[idx_of_time].data(),
             column_entries[idx_of_time].data() + column_entries[idx_of_time].size(), epoch_s);
-        if (!validate_str_to_num(t_res.ec, column_entries[idx_of_time])) {
+        if (!validate_str_to_num(time_res.ec, column_entries[idx_of_time])) {
             std::println(std::cerr, "tick: Fatal error parsing time from row {}", csv_row_idx);
             return false;
         } 
@@ -266,13 +270,13 @@ bool KrakenParser::tick() {
         price_times[num_rows_parsed] = std::chrono::sys_seconds{std::chrono::seconds{epoch_s}};
         ++num_rows_parsed;
     }
-    // Reached EOF
     if (num_rows_parsed == 0) return false;
 
     // Set sentinel values
     for (std::size_t i = num_rows_parsed; i < prices.size(); ++i) {
         prices[i] = kSentinel;
     }
+    // Reset buffer position after new read transaction
     prices_idx = 0;
     return true;
 }

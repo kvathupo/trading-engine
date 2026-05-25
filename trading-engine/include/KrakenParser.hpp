@@ -6,13 +6,21 @@
 
 namespace te {
 
-// @TODO(kvathupola): template on buffer size?
+/*
+ *  @TODO(kvathupola):
+ *      - Template the class on buffer size?
+ *      - Add exception safety guarantees to methods, namely tick()
+ */
 class KrakenParser : public DataParser {
 public:
     KrakenParser() = default;
     KrakenParser(const KrakenParser&) = delete;
     KrakenParser& operator=(const KrakenParser&) = delete;
     virtual bool init(const InitializationConfig& cfg) noexcept override;
+    /*
+     *  Returns false if data in unexpected format.
+     *  Indicates that a parser cannot work with this data source.
+     */
     virtual bool is_data_good() override;
     virtual ~KrakenParser();
 
@@ -33,7 +41,17 @@ public:
         std::uint_fast8_t depth) override;
 
 protected:
-    // If the error code is populated, log a warning and return false
+    /*
+     *  Logs a warning and returns false if the error code from `std::from_chars()`
+     *  is populated.
+     * 
+     *  @param error_code
+     *      Error code from `std::from_chars()`.
+     *  @param validated_str
+     *      String that was parsed by `std::from_chars()`. Only used for logging message.
+     *  @returns
+     *      False if error code populated.
+     */
     bool validate_str_to_num(std::errc& error_code, const std::string_view& validated_str);
 
 private:
