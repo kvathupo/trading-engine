@@ -3,24 +3,16 @@ Immediate use-case: currency swaps
 1. Write a basic example using historical data from Kraken
     - Systems (to do in order)
         - World
-            - Requirements: Time ticking is correct
         - Data System
-            - Have the user pass in an unordered map of directory to data parser type for now.
-            In the future, read in YAML? (but no typing!)
             - Data Parser type
-                - Role: I/O, getting current price
-                - Inputs: File name
-                - API:
-                    - Get ticker name, granularity, first date, last date, if valid (corrupt data, read failure),
-                    curr price (time, price tuple)
-                - Requirements: Expose default parser types
+                - Requirements: Expose default parser type
             - Requirements:
                 - Fail World init if any data parser bad
                 - Update price correctly
         - Pricing System
-            - Role: Aggregate prices by ticker, exchange, and instrument type.
+            - Role: Get current price. Aggregate prices by ticker, exchange, and instrument type.
             - API:
-                - Peek next time, get curr price (return (time, price) tuple for (exchange, ticker) tuple), tick (update all prices)
+                - Get most recent price (return (time, price) tuple for (exchange, ticker) tuple), tick (update all prices)
             - Internals:
                 - Holds Data System
             - Instrument Type (default to swap)
@@ -28,8 +20,10 @@ Immediate use-case: currency swaps
         - Logging
         - Benchmarking system
 2. Worry about reproducibility: CMake, Conan, Docker
-3. Abstract data parsers into yaml input
-4. Write data feed on live data
+3. Clean up how CSV tests are handled by (1) removing them from source control, (2) downloading them from a bucket
+come test time _locally_. That way, we don't pollute shit.
+4. Abstract data parsers into yaml input
+5. Write data feed on live data
 # Developer Resources
 ## Prerequisites
 * Linux

@@ -1,12 +1,15 @@
-#include <Types.h>
-
+#pragma once
 #include <chrono>
 #include <utility>
+
+#include "Types.hpp"
+
 
 namespace te {
 
 struct World {
     World() = default;
+    /** Returns false if already initialized or invalid start date */
     bool init(const std::chrono::year_month_day& start,
         const std::size_t& num_days);
     bool tick(const std::chrono::seconds& delta_time);
@@ -22,4 +25,4 @@ struct World {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> curr_time;
 };
 
-}
+}       // end namespace te
