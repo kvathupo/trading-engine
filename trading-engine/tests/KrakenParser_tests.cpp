@@ -98,7 +98,19 @@ TEST(KrakenParserTests, parse_multiple_granularities) {
      */
 
     std::unordered_map<std::string, std::pair<std::string, unsigned long>> fileNameToTickerAndMinTick {
-    {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_5.csv", {"BTTUSD", 60*5}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_5.csv",    {"BTTUSD",  60*5}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_60.csv",   {"BTTUSD",  60*60}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_720.csv",  {"BTTUSD",  60*720}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHCAD_1.csv",    {"ETHCAD",  60*1}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHDAI_720.csv",  {"ETHDAI",  60*720}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHJPY_1.csv",    {"ETHJPY",  60*1}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHJPY_720.csv",  {"ETHJPY",  60*720}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHUSD_1.csv",    {"ETHUSD",  60*1}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHUSDC_1.csv",   {"ETHUSDC", 60*1}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ETHUSDT_1.csv",   {"ETHUSDT", 60*1}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ZECUSD_1.csv",    {"ZECUSD",  60*1}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ZECUSD_15.csv",   {"ZECUSD",  60*15}},
+        {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ZECUSD_1440.csv", {"ZECUSD",  60*1440}},
     };
 
     for (const auto [fileName, tickerAndMinTick] : fileNameToTickerAndMinTick) {
