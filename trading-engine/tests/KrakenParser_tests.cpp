@@ -1,7 +1,9 @@
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <filesystem>
-#include <algorithm>
+#include <fstream>
+#include <ranges>
 
 #include "Types.hpp"
 #include "KrakenParser.hpp"
@@ -15,24 +17,23 @@ namespace te {
  */
 TEST(KrakenParserTests, parse) {
     using namespace std::chrono;
-    // Prices are in the 1e-7 range
+
+    // Check parser with no data attached
     te::KrakenParser parser;
-
-    constexpr unsigned long expected_min_tick_s{60 * 60};
-    const std::string historicalDataPathWithDots = std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_60.csv";
-
-    te::InitializationConfig initConfig = {
-        .data = historicalDataPathWithDots,
-        .type = te::InitializationType::FileIo
-    };
-
-
     EXPECT_TRUE(parser.absolute_file_path.empty()) << "Incorrect value prior to initialization";
     EXPECT_EQ(parser.min_tick_s, 0) << "Incorrect value prior to initialization";
     EXPECT_EQ(parser.prices_idx, 0) << "Incorrect value prior to initialization";
     EXPECT_TRUE(std::ranges::all_of(parser.prices, [](const auto price) { static int i = 0; ++i; return price == 0; }));
     EXPECT_TRUE(std::ranges::all_of(parser.price_times, [](const auto time) { return time.time_since_epoch().count() == 0 ; }));
 
+    // Check parser post-initialization
+    // Prices are in the 1e-7 range
+    constexpr unsigned long expected_min_tick_s{60 * 60};
+    const std::string historicalDataPathWithDots = std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_60.csv";
+    te::InitializationConfig initConfig = {
+        .data = historicalDataPathWithDots,
+        .type = te::InitializationType::FileIo
+    };
     EXPECT_TRUE(parser.init(initConfig));
 
     // Check member variables
@@ -82,8 +83,59 @@ TEST(KrakenParserTests, parse) {
 }
 
 /*
- *  Tests that parsers do not throw exceptions on failures.
+ *  Tests that Kraken Parsers correctly parse price levels, times, tickers, and min ticks for 
+ *  historical data with time granularities of 1, 5, 15, 60, 720, and 1440 seconds
  */
+TEST(KrakenParserTests, parse_multiple_granularities) {
+    /*  1:03
+     *  1. Given all CSVs in the Kraken dir path, iterate over them. Generate a Kraken parser for each.
+     *  2. Check that the ticker and min ticks are correct (have an unordered_map from relative file path
+     *  to {string ticker, unsigned long min_tick_s})
+     *  3. Check price levels and times.
+     *      i. Until EOF, get a row from the csv and tick the KrakenParser. 
+     *      ii. Grab the expected price and time from the row -> std::ranges::split(',')
+     *      iii. Compare the expected price and time to the KrakenParser. 
+     */
+
+    std::unordered_map<std::string, std::pair<std::string, unsigned long>> fileNameToTickerAndMinTick {
+    {std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/BTTUSD_5.csv", {"BTTUSD", 60*5}},
+    };
+
+    for (const auto [fileName, tickerAndMinTick] : fileNameToTickerAndMinTick) {
+        te::InitializationConfig initConfig = {
+            .data = fileName,
+            .type = te::InitializationType::FileIo
+        };
+        KrakenParser parser;
+        parser.init(initConfig);
+
+        // Check metadata is correct
+        EXPECT_EQ(parser.get_exchange(), Exchange::Kraken);
+        EXPECT_EQ(parser.get_ticker(), tickerAndMinTick.first);
+        EXPECT_EQ(parser.min_tick_s, tickerAndMinTick.second);
+
+        // Check price levels and times
+        std::fstream fstrm(fileName);
+        std::string row;
+        constexpr std::size_t idx_of_time{0};
+        constexpr std::size_t idx_of_close{4};
+        while (std::getline(fstrm, row)) {
+            parser.tick();
+
+            std::vector<std::string> columnsInRow = std::ranges::views::split(row, ',')
+                | std::ranges::to<std::vector<std::string>>();
+            std::string timeStr = columnsInRow[idx_of_time];
+            const unsigned long secondsSinceUnixEpoch = std::stol(timeStr);
+            std::chrono::sys_seconds expectedSeconds = std::chrono::sys_seconds(std::chrono::seconds(secondsSinceUnixEpoch));
+            EXPECT_EQ(expectedSeconds, parser.get_newest_time());
+
+            std::string priceStr = columnsInRow[idx_of_close];
+            const float expectedPrice = std::stod(priceStr);
+            ASSERT_TRUE(parser.get_newest_price().has_value());
+            EXPECT_FLOAT_EQ(expectedPrice, *parser.get_newest_price());
+        }
+    }
+}
 
 
 }   // end namespace te
