@@ -12,7 +12,7 @@ Immediate use-case: currency swaps
         - Pricing System
             - Role: Get current price. Aggregate prices by ticker, exchange, and instrument type.
             - API:
-                - Peek next time, get curr price (return (time, price) tuple for (exchange, ticker) tuple), tick (update all prices)
+                - Get most recent price (return (time, price) tuple for (exchange, ticker) tuple), tick (update all prices)
             - Internals:
                 - Holds Data System
             - Instrument Type (default to swap)

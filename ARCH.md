@@ -3,7 +3,22 @@
 Inputs to simulation:
 * tick rate, backtest start time, duration
 * Portfolios
-* matching engine to use
+    - Member vars mutated by simulation:
+        - Balance, holdings, pending fills
+    - Members vars not mutated:
+        - Exchange
+    - Callback processed each tick
+      - Inputs:
+          - Asset universe
+                - Assets have a ticker, type, most recent price, time, and order book
+                - Methods:
+                    - Get all assets in universe
+                    - Get all assets by type
+          - Failed fills from last tick
+          - Pending fills
+      - Outputs:
+          - Order requests
+
 Outputs:
     - Logging System:
         * Plot of daily Pnl
@@ -13,16 +28,23 @@ Outputs:
         * Fills
         * Volatility
 
-0. World preinitialization -> to be replaced by reading in yaml file
-    0. World adds data
+## User experience
+1. In the ctor of World, the user specifies a list of exchange enums, and a `LIVE` or `HISTORICAL` enum
+2. User attaches a collection of portfolios
+3. User calls `run_backtest()` on the World
+4. Evaluates the results.
+
+0. World preinitialization
+    - Ctor and portfolio attachment is expected
 1. World initializes
     0. Init data system
-        Inputs: unordered map from string (to dir) to Data Parser type (has methods to get exchange, ticker, granularity, etc.)
+        - Knows for a particular exchange and live/historical enum, which parser to use
+        Inputs: list of exchange enums and whether to use live or historical data
+
+        1. Reads configuration file mapping exchange to historical data location
+        2. Using internal mapping from (exchange, feed_type) to Parser type, initializes a parser for each
+        asset in that directory. Stores a collection of assets (they hold exchange type), 
     i. Call pricing system init
-        1. Iterate over all CSV files.
-        2. Populate data
-        3. Find earliest date, and oldest date.
-        4. Return true/false if data found
     ii. Call Portfolio system init
         1. Contains N Portfolios. Each has a balance, holdings, and a strategy (which issues orders to the matching engine).
 2. Until exit requested, world ticks (like with unreal engine, don't have advance time [1])
@@ -63,13 +85,10 @@ funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but
         - Given a type-safe Asset class, return all possible prices with fees per liquidity source (can be multiple
           per exchange if DEX)
     - Member funcs:
-        - 
         - Get price
 ## Testing
 * Eschew the use of `private` for `protected` in order to create shims that are exclusively
 exported to gtest.
-## Build Infra
-* First, compile all module interface units. Shuffle them into the gcm cache.
 
 ## Commentary
 ### Comparisons to game and defense simulations
