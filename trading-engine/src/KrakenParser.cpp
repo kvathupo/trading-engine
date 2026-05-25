@@ -165,13 +165,6 @@ KrakenParser::~KrakenParser() {
 }
 
 bool KrakenParser::tick() {
-    /*
-     *  1. If prices are empty, attempt to read in 32 prices
-     *  2. Else if index not equal to 31, increment index. If new price
-     *  is not -1, return true.
-     *  3. Else, attempt to read in 32 prices
-     */
-    const std::size_t price_buffer_size{prices.size()};
     constexpr float kSentinel{-1.0f};
 
     // Populate mmap pointer on first call
@@ -185,6 +178,8 @@ bool KrakenParser::tick() {
             std::println(std::cerr, "tick: open failed for {}", absolute_file_path);
             return false;
         }
+        
+        // Get file size from the file descriptor to allocate virtual memory space
         struct stat file_metadata{};
         if (::fstat(file_descriptor, &file_metadata) < 0) {
             ::close(file_descriptor);
@@ -197,7 +192,7 @@ bool KrakenParser::tick() {
             std::println(std::cerr, "tick: file {} is empty", absolute_file_path);
             return false;
         }
-        // Don't use MAP_POPULATE with MADV_SEQUENTIAL. The latter puts all mmap'd page table entries into the kernel's
+        // Don't use MAP_POPULATE with MADV_SEQUENTIAL. The former puts all mmap'd page table entries into the kernel's
         // page reclamation algorithm's inactive LRU. With many open CSVs encroaching on RAM size, this can cause the 
         // reclamation of pages that currently being pointed to by parsers. Thus, a major page fault anyways after a page
         // walk!
@@ -212,7 +207,7 @@ bool KrakenParser::tick() {
         mmap_address = static_cast<const char*>(maybe_address);
         ::madvise(const_cast<char*>(mmap_address), num_bytes_in_file, MADV_SEQUENTIAL);
         // Fall through to load the first chunk.
-    }  else if (prices_idx + 1 < price_buffer_size) {
+    }  else if (prices_idx + 1 < prices.size()) {
         ++prices_idx;
         return prices[prices_idx] != kSentinel;
     }
@@ -223,26 +218,27 @@ bool KrakenParser::tick() {
     constexpr std::size_t idx_of_time{0};
     constexpr std::size_t idx_of_close{4};
     std::size_t num_rows_parsed{0};
-    while (num_rows_parsed < price_buffer_size && mmap_cursor < num_bytes_in_file) {
-        // Create a string view for the whole row
-        const char* line_start = mmap_address + mmap_cursor;
-        const char* pointer_to_newline = static_cast<const char*>(
-            std::memchr(line_start, '\n', num_bytes_in_file - mmap_cursor));
-        const std::size_t line_len = pointer_to_newline 
-            ? static_cast<std::size_t>(pointer_to_newline - line_start)
+    while (num_rows_parsed < prices.size() && mmap_cursor < num_bytes_in_file) {
+        // Create a string view for the whole row. 
+        // A row either ends in `\n` or `\n\r`
+        const char* row_start = mmap_address + mmap_cursor;
+        const char* first_newline_after_row_start = static_cast<const char*>(
+            std::memchr(row_start, '\n', num_bytes_in_file - mmap_cursor));
+        const std::size_t row_len = first_newline_after_row_start
+            ? static_cast<std::size_t>(first_newline_after_row_start - row_start)
             : (num_bytes_in_file - mmap_cursor);        // Hit EOF
-        std::string_view line(line_start, line_len);
-        // windows-written text files prepend a carriage return to a newline
-        if (line.ends_with('\r')) line.remove_suffix(1);
-        if (line.empty()) break;     // If we hit EOF
+        std::string_view row(row_start, row_len);
+        // windows-written text files append a carriage return to a newline
+        if (row.ends_with('\r')) row.remove_suffix(1);
+        if (row.empty()) break;     // If we hit EOF
 
         // Move cursor to next row or EOF
-        mmap_cursor += line_len + (pointer_to_newline ? 1 : 0);
+        mmap_cursor += row_len + (first_newline_after_row_start ? 1 : 0);
         ++csv_row_idx;
 
         std::array<std::string_view, 7> column_entries{};
         std::size_t col_idx{0};
-        for (auto&& col_entry : line | std::views::split(',')) {
+        for (auto&& col_entry : row | std::views::split(',')) {
             if (col_idx >= column_entries.size()) {
                 std::println(std::cerr, "tick: Unexpectly parsed less than 7 column entries in row {}", csv_row_idx);
                 return false;
@@ -267,15 +263,14 @@ bool KrakenParser::tick() {
         }
 
         prices[num_rows_parsed] = price;
-        price_times[num_rows_parsed] = std::chrono::sys_seconds{
-            std::chrono::seconds{epoch_s}};
+        price_times[num_rows_parsed] = std::chrono::sys_seconds{std::chrono::seconds{epoch_s}};
         ++num_rows_parsed;
     }
     // Reached EOF
     if (num_rows_parsed == 0) return false;
 
     // Set sentinel values
-    for (std::size_t i = num_rows_parsed; i < price_buffer_size; ++i) {
+    for (std::size_t i = num_rows_parsed; i < prices.size(); ++i) {
         prices[i] = kSentinel;
     }
     prices_idx = 0;

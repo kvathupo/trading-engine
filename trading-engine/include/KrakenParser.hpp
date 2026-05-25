@@ -19,6 +19,11 @@ public:
     virtual Exchange get_exchange() override;
     virtual std::string get_ticker() override;
 
+    /*
+     *  Update the internal state to the next data point. 
+     *  @returns
+     *      True on sucess. Else, False on failure or no more data.
+     */
     virtual bool tick() override;
     virtual std::optional<float> get_newest_price() override;
     virtual std::chrono::sys_seconds get_newest_time() override;
@@ -29,8 +34,7 @@ public:
 
 protected:
     // If the error code is populated, log a warning and return false
-    bool validate_str_to_num(std::errc& error_code, 
-        const std::string_view& validated_str);
+    bool validate_str_to_num(std::errc& error_code, const std::string_view& validated_str);
 
 private:
     std::string absolute_file_path{""};
@@ -41,10 +45,11 @@ private:
     unsigned long min_tick_s{0};
 
     
-    std::array<float, 32> prices{};
     // Index to current `prices` value
     uint8_t prices_idx{0};
-    // Historical epoch time granularity in single seconds.
+    // 
+    std::array<float, 32> prices{};
+    // Time for each price level. Seconds since unix epoch
     std::array<std::chrono::sys_seconds, 32> price_times{};
 
     // Zero-indexed row number corresponding to the price at
