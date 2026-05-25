@@ -14,6 +14,7 @@ namespace te {
 class KrakenParser : public DataParser {
 public:
     KrakenParser() = default;
+    // Delete copy operations since we hold a mmap pointer
     KrakenParser(const KrakenParser&) = delete;
     KrakenParser& operator=(const KrakenParser&) = delete;
     virtual bool init(const InitializationConfig& cfg) noexcept override;
@@ -76,7 +77,6 @@ private:
 
     // mmap-backed streaming state. Lazily initialized on first tick().
     const char* mmap_address{nullptr};
-    // 
     std::size_t num_bytes_in_file{0};
     std::size_t mmap_cursor{0};
 
@@ -85,6 +85,7 @@ private:
      *  Declare gtest friends
      */
     FRIEND_TEST(KrakenParserTests, parse);
+    FRIEND_TEST(KrakenParserTests, parse_multiple_granularities);
 };
 
 }       // end namespace te
