@@ -45,9 +45,23 @@ Outputs:
         2. Using internal mapping from (exchange, feed_type) to Parser type, initializes a parser for each
         asset in that directory. Stores a collection of assets (they hold exchange type), 
     i. Call pricing system init
+        Inputs: Data system
+
+        1. Initializes a list of `Asset` instances. An `Asset` class contains an exchange enum, string ticker,
+        and `AssetType` variant/enum/struct (e.g. a swap has two members). These assets are generated from all 
+        active assets in the Data System.
+        2. Initialies a `Universe` class, which is passed to the portfolio system, which passes it to the callbacks on
+        individual portfolios. The `Universe` class queries the pricing system API for most up-to-date prices.
     ii. Call Portfolio system init
-        1. Contains N Portfolios. Each has a balance, holdings, and a strategy (which issues orders to the matching engine).
-2. Until exit requested, world ticks (like with unreal engine, don't have advance time [1])
+        Inputs: N Portfolios.
+
+        1. 
+    iii. Matching System init
+        Inputs: MatchType 
+
+        1. If Naive, fill order if above ask (resp. below bid). If OrderBook, check volume and guarantee fill.
+        If OrderBookWithProbability, check volume and fill if binomial samping sufficient.
+2. Until exit requested, world ticks with steady clock duration (like with unreal engine, don't have advance time [1])
     i. Pricing system ticks
         Inputs: Data System
         1. For every exchange, for every asset,
@@ -56,6 +70,8 @@ Outputs:
         Inputs: Pricing System, Portfolio System
         1. For all portfolios, iterate over orders. If order is invalid (insufficient
 funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but warn if done.
+    iii. Price System ticks
+        1. Updates all asset prices from 
     iii. Portfolio system ticks
         1. Read fills, and update balance and held instruments.
         2. Instrument values update (not needed if pointer to pricing system `curr_price` held)

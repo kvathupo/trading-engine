@@ -1,19 +1,21 @@
 # Last Time
-* Write `KrakenParser` impl
-    - Added test data for kraken swaps
-        - tick -> DONE, Cleaned up
-        - get new price
-        - get time
-        - get duration (might need to rethink interface)
-        - get transaction fee
-        - get order book
-        - Replicate test for other data sets
-    - Rename `validate_str_to_num` to something not retarded 
-    - Handle TODOs, except with magic enum
-* Data System role in relation to Pricing system (subsume the two?)
+* Write Data System (See `Arch.md`)
+    - Writing out `tick()` logic in `Arch.md`. -> CURR - vibe-code linter and yaml parser for ctor
+        - Unknowns:
+            - Should the `Universe` hold anything, other than refs to systems?
+            - How to handle live trading in all systems
+    - Writing ctor
+        - Want to make configurable in yaml:
+            - Data for a given exchange is in one directory, which contains all assets of differing
+              granularites. Deconflict the assets by prefix string. Deconflict granularities with suffix
+              string.
+        - Mapping from exchange to directory if historical data.
+            - Require same granularity for now. Take the one big CSV approach.
+        - Mapping from exchange to endpoint with auth keys (DANGER!) if live.
+    - Subsume into Price system?
 * Data System API
 * Data Parser implementation
-* Data System implementtation
+* Data System implementation
 * Pricing System
 
 * Set up LSP with vim
