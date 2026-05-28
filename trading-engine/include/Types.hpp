@@ -33,6 +33,12 @@ struct InitializationConfig {
     InitializationType type;
 };
 
+enum class ExecutionMode : std::uint_fast8_t {
+    Backtest,       // historical data, simulated portfolios
+    Paper,          // real-time data, simulated portfolios
+    Live,           // real-time data, real portfolios
+};
+
 enum class Exchange : std::uint_fast8_t {
     Kraken,
 };

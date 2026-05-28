@@ -18,11 +18,13 @@ target_sources(trading-engine
     include
     FILES
     include/World.hpp
+    include/DataSystem.hpp
     include/DataParser.hpp
     include/KrakenParser.hpp
 
     PRIVATE
     src/World.cpp
+    src/DataSystem.cpp
     src/KrakenParser.cpp
 )
 
