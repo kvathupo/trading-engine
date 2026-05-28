@@ -295,8 +295,13 @@ std::chrono::sys_seconds KrakenParser::get_newest_time()  {
 
 // @TODO(kvathupo): return the tick duration relative to the last step?
 // Might need to redefine the interface here
-std::optional<std::size_t> KrakenParser::get_tick_duration() {
-    return {}; 
+std::optional<std::chrono::seconds> KrakenParser::get_tick_duration() {
+    // @TODO(kvathupola): Currently assume only file i/o
+    if (absolute_file_path.empty()) {
+        std::println(std::cerr, "Kraken Parser not initialized!");
+        return {};
+    }
+    return std::chrono::seconds{min_tick_s};
 }
 
 std::optional<float> KrakenParser::get_transaction_fee() {

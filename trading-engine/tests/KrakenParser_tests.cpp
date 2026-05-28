@@ -114,6 +114,7 @@ TEST(KrakenParserTests, parse_multiple_granularities) {
     };
 
     for (const auto [fileName, tickerAndMinTick] : fileNameToTickerAndMinTick) {
+        const auto [expectedTickerName, expectedMinTick_s] = tickerAndMinTick;
         te::InitializationConfig initConfig = {
             .data = fileName,
             .type = te::InitializationType::FileIo
@@ -123,8 +124,8 @@ TEST(KrakenParserTests, parse_multiple_granularities) {
 
         // Check metadata is correct
         EXPECT_EQ(parser.get_exchange(), Exchange::Kraken);
-        EXPECT_EQ(parser.get_ticker(), tickerAndMinTick.first);
-        EXPECT_EQ(parser.min_tick_s, tickerAndMinTick.second);
+        EXPECT_EQ(parser.get_ticker(), expectedTickerName);
+        EXPECT_EQ(parser.get_tick_duration(), std::chrono::seconds(expectedMinTick_s));
 
         // Check price levels and times
         std::fstream fstrm(fileName);

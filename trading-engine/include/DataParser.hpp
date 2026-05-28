@@ -42,7 +42,14 @@ struct DataParser {
      *  Current minimum granularity across data feeds is one second.
      */
     virtual std::chrono::sys_seconds get_newest_time() = 0;
-    virtual std::optional<std::size_t> get_tick_duration() = 0;
+    /*
+     *  The minimum possible duration between subsequent ticks in a data feed.
+     *  We assume no subsecond granularity for all data sources.
+     *  @returns
+     *      Empty optional if mininimum tick granularity unknown (e.g. live feed with
+     *  no guarantees). Else, minimum possible time between ticks.
+     */
+    virtual std::optional<std::chrono::seconds> get_tick_duration() = 0;
     virtual std::optional<float> get_transaction_fee() = 0;
     virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side,
         std::uint_fast8_t depth) = 0;

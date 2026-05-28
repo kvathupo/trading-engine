@@ -36,7 +36,7 @@ public:
     virtual bool tick() override;
     virtual std::optional<float> get_newest_price() override;
     virtual std::chrono::sys_seconds get_newest_time() override;
-    virtual std::optional<std::size_t> get_tick_duration() override;
+    virtual std::optional<std::chrono::seconds> get_tick_duration() override;
     virtual std::optional<float> get_transaction_fee() override;
     virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side,
         std::uint_fast8_t depth) override;
