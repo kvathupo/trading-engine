@@ -19,25 +19,28 @@ namespace te {
  */
 class DataSystem {
 public:
-    DataSystem() = default;
-    
     /*
      *  @param execution_mode
      *      If using real-time data, exchange connections are opened. Else, historical
      *  data is read from disk.
-     *  @param exchanges
-     *      List of exchanges to connect to.
-     *  @param start_date
-     *      
      */
-    bool init(const ExecutionMode execution_mode, const std::vector<Exchange>& exchanges,
-        const std::chrono::year_month_day start_date);
+    DataSystem(const ExecutionMode execution_mode);
+    
+    /*
+     *  @param start_date
+     */
+    bool init(const std::chrono::year_month_day start_date);
 
-    bool add_data_parser(Exchange exchange, std::unique_ptr<DataParser>);
+    /*
+     *  @param curr_time The time to tick to.
+     */
+    bool tick(const std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>& curr_time);
+
+    bool add_data_parser(Exchange exchange, std::unique_ptr<DataParser> parser);
 
     ExecutionMode mExecution_mode;
-    std::vector<Exchange> mExchanges;
-    std::unordered_map<Exchange, std::vector<std::unique_ptr<DataParser>>> mExchangeToDataSources;
+    std::vector<Exchange> mExchanges {};
+    std::unordered_map<Exchange, std::vector<std::unique_ptr<DataParser>>> mExchangeToDataSources {};
 };
 
 }   // end namespace te
