@@ -1,17 +1,41 @@
+#include <memory>
+#include <string>
+
 #include <gtest/gtest.h>
 #include "World.hpp"
+#include "KrakenParser.hpp"
 
 using namespace std::chrono;
 using namespace te;
+
+namespace {
+
+/*
+ *  Historical Kraken data: hourly bars spanning 2023-01-01 to 2023-03-31.
+ *  `World::init()` seeks parsers up to its start date, so test dates must fall
+ *  within this range for the data system to initialize.
+ */
+InitializationConfig kraken_test_data() {
+    return {
+        .data = std::string(TEST_DATA_DIR) + "kraken/OHLCVT_Q1_2023/BTTUSD_60.csv",
+        .type = InitializationType::FileIo
+    };
+}
+
+}   // end anonymous namespace
 
 /*
  *  Tests World init is correct on bad date, already initialized, and valid
  *  date.
  */
 TEST(WorldTest, init_date_based) {
-    World w;
-    const year_month_day start_date = year{2025}/January/1d;
-    const year_month_day bad_start_date = year{2025}/November/31d;
+    World w{ExecutionMode::Backtest};
+    auto parser = std::make_unique<KrakenParser>();
+    ASSERT_TRUE(parser->init(kraken_test_data()));
+    ASSERT_TRUE(w.add_data(Exchange::Kraken, std::move(parser)));
+
+    const year_month_day start_date = year{2023}/February/1d;
+    const year_month_day bad_start_date = year{2023}/November/31d;
     const std::size_t num_days {2};
 
     EXPECT_FALSE(w.init(bad_start_date, num_days));
@@ -20,12 +44,24 @@ TEST(WorldTest, init_date_based) {
 }
 
 /*
+ *  Tests that a World with no data sources fails to initialize.
+ */
+TEST(WorldTest, init_without_data) {
+    World w{ExecutionMode::Backtest};
+    EXPECT_FALSE(w.init(year{2023}/February/1d, 2));
+}
+
+/*
  *  Tests that the World ticks at the input period, final world time is
  *  correct across multiple ticks.
  */
 TEST(WorldTest, tick) {
-    World w;
-    const year_month_day start_date = year{2025}/January/1d;
+    World w{ExecutionMode::Backtest};
+    auto parser = std::make_unique<KrakenParser>();
+    ASSERT_TRUE(parser->init(kraken_test_data()));
+    ASSERT_TRUE(w.add_data(Exchange::Kraken, std::move(parser)));
+
+    const year_month_day start_date = year{2023}/February/1d;
     const std::size_t num_days {2};
     EXPECT_TRUE(w.init(start_date, num_days));
 
@@ -38,6 +74,6 @@ TEST(WorldTest, tick) {
         const auto delta_time_s = duration_cast<seconds>(curr_time - prev_time);
         EXPECT_EQ(delta_time_s, expected_delta_time_s);
     }
-    const year_month_day expected_end_date = year{2025}/January/2d;
+    const year_month_day expected_end_date = year{2023}/February/2d;
     EXPECT_EQ(w.curr_time, sys_days(expected_end_date));
 }
