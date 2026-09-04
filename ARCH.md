@@ -1,4 +1,67 @@
 # Architecture overview
+https://x.com/BrettHarrison/status/2080297166229094480
+
+Data tick (informs prices and fills)
+    Design decision: Send orders and read fills to (1) conceptually have a notion of trading client tick rate
+    separate from exchange server tick rate and (2) make code easier to reason about by encapsulation.
+
+    Update server-side, portfolio-specific data (to prioritize sending orders on most recent data):
+    1. Iterate over all order requests, and send to exchange async. 
+    Update server-side, portfolio-agnostic data:
+    1. Iterate over all exchange, ticker pairs (data parser), update price
+    Update server-side, portfolio-specific data:
+    1. Read fills from earlier. Write if accepted or rejected by exchange.
+Price tick (so portfolio decisions made on most recent values),
+    - Some degree of slippage from ground truth asset prices from network latency
+Portfolio system tick:
+    - Server side (for each portfolio, vector of portfolio class instances): 
+        - Prices update for portfolio assets held and next orders requests (from the client side tick)
+        - Order requests last tick turned into response variable or Order:     (map from order request id to request and status)
+            For all order requests,
+            - If status is rejected, remove. These are orders that were rejected previous tick, and carried over.
+            - Bid/ask request:
+                i. If accepted by exchange,
+                    1. If filled, make changes to portfolio assets and account balance
+                    2. If not filled, add to portfolio's pending orders (map from order id to OrderInfo and status)
+                ii. If rejected, update status
+            - Cancel request.
+                i. If accepted by exchange, 
+                    1. Remove from pending orders (map from order id to OrderInfo and status).
+                    If bid cancelled, return funds. If ask cancelled, deregister those shares as locked up
+                    (from a portfolio's pending asks list of `asset, quantity` pairs, remove it).
+                ii. If rejected, update portfolio. 
+        - Filled orders turned into portfolio changes
+    - Client side (for each portfolio):
+        - Order requests are made
+## Real world
+### Client
+1. User makes request (Portfolio system)
+    i. Bid
+        1. Accept if sufficient funds
+        2. Reject if insufficient funds
+    ii. Ask
+        1. Accept if sufficient assets (assets in portfolio, minus pending asks)
+        2. Reject if inufficient assets
+    iii. Cancel
+        1. Accept if order exists (requires tracking pending orders)
+        2. Reject if order does not exist
+2. Next tick,
+    i. Exchange level info updated:
+        1. Order book.
+    ii. Portfolio level info updated:
+        i. For each request,
+            1. If accepted by exchange, becomes order. Add id and description.
+        i. For each order in the portfolio, the status is updated:
+            1. Bid/ask filled
+            2. Sits
+            3. Cancelled
+        ii. Portfolio holdings update
+        ii. Portfolio changes value
+### Server
+1. Order book exists with bid/ask. Liquidity pool is just order book size one. (this tick)
+2. Orders are received. Cancellations are received.
+3. Matching engine runs. 
+4. Fills are sent out. Succesfull cancellations are sent out. (next tick)
 ## Core code
 Inputs to simulation:
 * tick rate, backtest start time, duration
@@ -62,8 +125,15 @@ Outputs:
         1. If Naive, fill order if above ask (resp. below bid). If OrderBook, check volume and guarantee fill.
         If OrderBookWithProbability, check volume and fill if binomial samping sufficient.
 2. Until exit requested, world ticks with steady clock duration (like with unreal engine, don't have advance time [1])
+    i. Data system ticks
+        Inputs: time delta
+    
+        For each exchange, for each asset,
+            1. If historical data, peek at the next available time for the asset. If strictly greater than 
+            `curr_time+time_delta`, then tick the data parser.
+            2. If live data, tick each parser.
     i. Pricing system ticks
-        Inputs: Data System
+        Inputs: Data System, time delta
         1. For every exchange, for every asset,
             i. Update price, update order book
     ii. Matching engine ticks
@@ -102,6 +172,25 @@ funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but
           per exchange if DEX)
     - Member funcs:
         - Get price
+* Portfolio System
+    - Member vars:
+        - Vector of `{portfolio id, Portfolio}` pairs.
+    - `Portfolio` class
+        * Member vars:
+            - Map from `OrderRequestId` to `OrderRequest`
+            - Map from `OrderRequestId` to `OrderRequestStatus` enum (Accept, Reject, Sent)
+            - Map from `OrderId` to `Order` 
+            - Map from `OrderId` to `OrderStatus` enum (Pending, Filled, Cancelled, Completed)
+            - `double balance`
+            - Map from `string` ticker to `size_t` amount held
+            - Map from `string` ticker to `size_t` amount locked up (collateral or pending order)
+    - `Bid` struct: Ticker string, `size_t` amount
+    - `Ask` struct: Ticker string, `size_t` amount
+    - `Cancel` struct: `OrderId`
+    - `OrderRequest` class
+        * Member vars: Exchange string, `union` of Bid/Ask/Cancel
+    - `Order` class
+        * Member vars: Exchange string, `union` of Bid/Ask/Cancel
 ## Testing
 * Eschew the use of `private` for `protected` in order to create shims that are exclusively
 exported to gtest.

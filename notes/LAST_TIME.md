@@ -1,4 +1,5 @@
 # Last Time
+* Thinking through design of client side. See `Arch.md`.
 * Write Data System (See `Arch.md`)
     - Writing out `tick()` logic in `Arch.md`. -> CURR - vibe-code linter and yaml parser for ctor
         - Unknowns:
