@@ -32,10 +32,14 @@ public:
     bool init(const std::chrono::year_month_day start_date);
 
     /*
+     *  If historical data, ticks all data parsers to a time less than or equal to `curr_time`.
+     *  Else, grabs the newest data from the exchange.
+     * 
      *  @param curr_time The time to tick to.
      */
     bool tick(const std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>& curr_time);
 
+    /** Adds a `parser` for data from `exchange`. */
     bool add_data_parser(Exchange exchange, std::unique_ptr<DataParser> parser);
 
     ExecutionMode mExecution_mode;

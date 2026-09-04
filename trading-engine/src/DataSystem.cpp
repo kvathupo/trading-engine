@@ -66,13 +66,15 @@ namespace te {
         return true;
     }
 
-    /*
-     *  Advances every parser to the newest data point at or before `curr_time`.
-     *  Running off the end of a feed is expected as a backtest progresses, so it is
-     *  logged and the parser left in place. Only unusable data fails the tick.
-     */
     bool DataSystem::tick(const std::chrono::time_point<std::chrono::system_clock,
             std::chrono::seconds>& curr_time) {
+        // With live data, the system is ticks independently on its own thread.
+        // Ticking is done at its preconfigured tick rate.
+        if (mExecution_mode != ExecutionMode::Backtest) {
+            return true;
+        }
+
+
         bool parser_failure{false};
         for (auto& [exchange, parsers] : mExchangeToDataSources) {
             for (auto& parser_ptr : parsers) {
@@ -84,8 +86,6 @@ namespace te {
                     continue;
                 }
 
-                // Advance while the earliest possible next data point still lands on or
-                // before `curr_time`, so ticking never overshoots it.
                 while (parser.get_newest_time() + *tick_duration <= curr_time) {
                     if (!parser.tick()) {
                         std::println("{} on {} exhausted its data at {}",
