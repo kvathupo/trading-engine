@@ -13,10 +13,11 @@ TEST(WorldTest, init_date_based) {
     const year_month_day start_date = year{2025}/January/1d;
     const year_month_day bad_start_date = year{2025}/November/31d;
     const std::size_t num_days {2};
+    const std::vector<Exchange> exchanges {Exchange::Kraken};
 
-    EXPECT_FALSE(w.init(bad_start_date, num_days));
-    EXPECT_TRUE(w.init(start_date, num_days));
-    EXPECT_FALSE(w.init(start_date, num_days + 2));
+    EXPECT_FALSE(w.init(bad_start_date, num_days, ExecutionMode::Backtest, exchanges));
+    EXPECT_TRUE(w.init(start_date, num_days, ExecutionMode::Backtest, exchanges));
+    EXPECT_FALSE(w.init(start_date, num_days + 2, ExecutionMode::Backtest, exchanges));
 }
 
 /*
@@ -27,7 +28,8 @@ TEST(WorldTest, tick) {
     World w;
     const year_month_day start_date = year{2025}/January/1d;
     const std::size_t num_days {2};
-    EXPECT_TRUE(w.init(start_date, num_days));
+    const std::vector<Exchange> exchanges {Exchange::Kraken};
+    EXPECT_TRUE(w.init(start_date, num_days, ExecutionMode::Backtest, exchanges));
 
     const seconds expected_delta_time_s{60};
     const std::size_t minutes_in_day(1440);

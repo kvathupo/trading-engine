@@ -1,6 +1,12 @@
 #pragma once
 
 #include "Types.hpp"
+#include "DataParser.hpp"
+
+#include <chrono>
+#include <memory>
+#include <vector>
+#include <unordered_map>
 
 
 namespace te {
@@ -13,6 +19,7 @@ namespace te {
  */
 class DataSystem {
 public:
+    DataSystem() = default;
     
     /*
      *  @param execution_mode
@@ -23,10 +30,14 @@ public:
      *  @param start_date
      *      
      */
-    DataSystem(const ExecutionMode execution_mode, const std::vector<Exchange>& exchanges,
+    bool init(const ExecutionMode execution_mode, const std::vector<Exchange>& exchanges,
         const std::chrono::year_month_day start_date);
 
-    ExecutionMode execution_mode;
+    bool add_data_parser(Exchange exchange, std::unique_ptr<DataParser>);
+
+    ExecutionMode mExecution_mode;
+    std::vector<Exchange> mExchanges;
+    std::unordered_map<Exchange, std::vector<std::unique_ptr<DataParser>>> mExchangeToDataSources;
 };
 
 }   // end namespace te

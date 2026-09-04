@@ -5,13 +5,21 @@ namespace te {
 
 // @TODO(kvathupo): use std::println() with cerr
 bool World::init(const std::chrono::year_month_day& start,
-        const std::size_t& num_days) {
+        const std::size_t& num_days,
+        const ExecutionMode execution_mode,
+        const std::vector<Exchange>& exchanges) {
     if (this->start || duration) {
         std::println("Already initialized: ignoring");
         return false;
     }
     if (!start.ok()) {
         std::println("{} not a valid day: ignoring", start);
+        return false;
+    }
+    // Init systems before taking on any state, so a failure leaves the world
+    // uninitialized and retryable.
+    if (!dataSystem.init(execution_mode, exchanges, start)) {
+        std::println("Data system failed to initialize: ignoring");
         return false;
     }
     this->start = start;
