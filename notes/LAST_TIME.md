@@ -1,5 +1,13 @@
 # Last Time
-* Thinking through design of client side. See `Arch.md`.
+* Thinking through design of client side. See `Arch.md`. -> DONE
+* Doing the Make orders work flow -> CURR
+    - Merge in branch with feed handler getting prices from data system
+        i. Implement `KrakenParser::has_next_price()`
+            - Req test passes
+        ii. Implement `DataSystem::get_newest_price()`
+            - Req test passes
+        iii. Implement `PricingSystem::populateActiveTickers()`
+            - Req test passes
 * Write Data System (See `Arch.md`)
     - Writing out `tick()` logic in `Arch.md`. -> CURR - vibe-code linter and yaml parser for ctor
         - Unknowns:
@@ -18,6 +26,10 @@
 * Data Parser implementation
 * Data System implementation
 * Pricing System
+* Make ECS 
+    - hash maps into vectors ordered by id
+        - Log(n) insertion and search
+    - Why maintain maps internally? Just have users do that and send back all the shit.
 
 * Set up LSP with vim
     - https://copilot.microsoft.com/shares/nxzwYu8DM1d7EnqKiVfW8
