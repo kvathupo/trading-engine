@@ -35,6 +35,7 @@ public:
      *      True on sucess. Else, False on failure or no more data.
      */
     virtual bool tick() override;
+    virtual bool has_next_price() override;
     virtual std::optional<float> get_newest_price() override;
     virtual std::chrono::sys_seconds get_newest_time() override;
     virtual std::optional<std::chrono::seconds> get_tick_duration() override;
