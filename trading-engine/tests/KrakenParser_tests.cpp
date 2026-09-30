@@ -82,6 +82,35 @@ TEST(KrakenParserTests, parse) {
     }
 }
 
+TEST(KrakenParserTests, has_next_price_is_correct) {
+    // small dataset
+    const std::string fileName{std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ZECUSD_1440.csv"};
+
+    std::fstream fstrm(fileName);
+    std::string row;
+    std::size_t num_rows {0};
+    while (std::getline(fstrm, row)) {
+        ++num_rows;
+    }
+
+
+    te::InitializationConfig initConfig = {
+        .data = fileName,
+        .type = te::InitializationType::FileIo
+    };
+    KrakenParser parser;
+    parser.init(initConfig);
+    std::size_t num_ticks {0};
+    while (parser.tick()) {
+        ++num_ticks;
+        if (num_ticks != num_rows) {
+            EXPECT_TRUE(parser.has_next_price()) << "There should be more price levels since there are more rows!";
+        } else {
+            EXPECT_FALSE(parser.has_next_price()) << std::format("We should be at the last price after {}", num_ticks);
+        }
+    }
+}
+
 /*
  *  Tests that Kraken Parsers correctly parse price levels, times, tickers, and min ticks for 
  *  historical data with time granularities of 1, 5, 15, 60, 720, and 1440 seconds

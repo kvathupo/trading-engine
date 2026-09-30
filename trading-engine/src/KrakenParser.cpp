@@ -281,6 +281,11 @@ bool KrakenParser::tick() {
     return true;
 }
 
+bool KrakenParser::has_next_price() {
+// Check if `mmap_cursor == num_bytes_in_file`
+    return true;
+}
+
 std::optional<float> KrakenParser::get_newest_price() {
     if (absolute_file_path.empty())
         return {};

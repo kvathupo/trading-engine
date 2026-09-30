@@ -37,6 +37,7 @@ struct DataParser {
      *      True on sucess. Else, False on failure or no more data.
      */
     virtual bool tick() = 0;
+    virtual bool has_next_price() = 0;
     virtual std::optional<float> get_newest_price() = 0;
     /*
      *  Returns time corresponding to newest price, else min_sys_time on failure.
