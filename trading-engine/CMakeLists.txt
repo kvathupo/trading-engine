@@ -21,11 +21,13 @@ target_sources(trading-engine
     include/DataSystem.hpp
     include/DataParser.hpp
     include/KrakenParser.hpp
+    include/PricingSystem.hpp
 
     PRIVATE
     src/World.cpp
     src/DataSystem.cpp
     src/KrakenParser.cpp
+    src/PricingSystem.cpp
 )
 
 # gtest_prod.h is included in production headers (for FRIEND_TEST), so
