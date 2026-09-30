@@ -1,7 +1,7 @@
 # Architecture overview
 https://x.com/BrettHarrison/status/2080297166229094480
 
-Data tick (informs prices and fills)
+Feed Handler tick (informs prices and fills)
     Design decision: Send orders and read fills to (1) conceptually have a notion of trading client tick rate
     separate from exchange server tick rate and (2) make code easier to reason about by encapsulation.
 
@@ -33,9 +33,23 @@ Portfolio system tick:
         - Filled orders turned into portfolio changes
     - Client side (for each portfolio):
         - Order requests are made
-## Real world
+## Sim world
 ### Client
-1. User makes request (Portfolio system)
+#### Make orders
+1. Feed handler tick
+    i. Data System ticks: Update newest order book
+    ii. Price System ticks: Update order book w/historical data.
+2. Portfolio System send orders to Exchange system
+    i. Iterate over all portfolios. For each order request with success, if the time to send to exchange
+is greater than or equal to the current time, send to exchange.
+3. Exchange System tick
+4. Portfolio System tick
+    i. For each portfolio, 
+        1. Update all prices of assets. Consume Feed handler. 
+        2. Update status of all orders. Consume Exchange system.
+5. Portfolio System user script process tick
+User makes request to Portfolio System, optionally with slippage in seconds
+Appends to its Portfolio instance's order request queue with slippage.
     i. Bid
         1. Accept if sufficient funds
         2. Reject if insufficient funds
@@ -45,23 +59,95 @@ Portfolio system tick:
     iii. Cancel
         1. Accept if order exists (requires tracking pending orders)
         2. Reject if order does not exist
-2. Next tick,
-    i. Exchange level info updated:
-        1. Order book.
-    ii. Portfolio level info updated:
-        i. For each request,
-            1. If accepted by exchange, becomes order. Add id and description.
-        i. For each order in the portfolio, the status is updated:
-            1. Bid/ask filled
-            2. Sits
-            3. Cancelled
-        ii. Portfolio holdings update
-        ii. Portfolio changes value
-### Server
-1. Order book exists with bid/ask. Liquidity pool is just order book size one. (this tick)
-2. Orders are received. Cancellations are received.
-3. Matching engine runs. 
-4. Fills are sent out. Succesfull cancellations are sent out. (next tick)
+-=- End of Tick -=-
+1. Feed handler tick
+    i. Data System ticks: Update newest order book
+    ii. Price System ticks: Update order book w/historical data.
+2. Portfolio System send orders to Exchange system
+    i. Iterate over all portfolios. For each order request with success, if the time to send to exchange
+is greater than or equal to the current time, send to exchange. Exchange returns a valid order id or invalid
+if connection failure. If invalid, order request is set to `Reject`
+    ii. Exhcange adds to buffer of orders
+    iii. Add this order to portfolio's order buffer
+3. Exchange System tick
+    i. Iterate over all orders. Fill or not:
+        1. If bid above price, fill at price
+        2. If ask below price, fill at price
+4. Portfolio System tick
+    i. For each portfolio, 
+        1. Update all prices of assets. Consume Feed handler. 
+        2. Update status of all orders. Consume Exchange system.
+5. Portfolio System user script process tick
+    1. Check status of order request. 
+    2. Check status of order.
+#### Query market data
+1. Query Feed System with exchange and ticker. Get price and time back.
+    - Just read from its own `Portfolio` object?
+2. Get universe given exchange. 
+3. Get universe w/o exchange
+#### Query Portfolio
+Just read from its own `Portfolio` object
+#### Get order status or order request status
+1. Query Exchange System
+
+
+## Real world
+Each is a process:
+* Data system continuously polls the exchange with newest book data
+* Price system updates in two modes:
+    - Async: For a ticker, grab price from data system on demand
+    - Record: For a ticker, record prices to a location on disk
+* User space with just portfolio system (read fills, then tick, and finally be commanded)
+### Client
+#### Make orders
+1. Feed handler tick
+    i. Data System ticks: Update newest order book
+    ii. Price System ticks: Update order book w/historical data.
+2. Portfolio System send orders to Exchange system
+    i. Iterate over all portfolios. For each order request with success, if the time to send to exchange
+is greater than or equal to the current time, send to exchange.
+3. Exchange System tick
+4. Portfolio System tick
+    i. For each portfolio, 
+        1. Update all prices of assets. Consume Feed handler. 
+        2. Update status of all orders. Consume Exchange system.
+5. Portfolio System user script process tick
+User makes request to Portfolio System, optionally with slippage in seconds
+Appends to its Portfolio instance's order request queue with slippage.
+    i. Bid
+        1. Accept if sufficient funds
+        2. Reject if insufficient funds
+    ii. Ask
+        1. Accept if sufficient assets (assets in portfolio, minus pending asks)
+        2. Reject if inufficient assets
+    iii. Cancel
+        1. Accept if order exists (requires tracking pending orders)
+        2. Reject if order does not exist
+-=- End of Tick -=-
+1. Feed handler tick
+    i. Data System ticks: Update newest order book
+    ii. Price System ticks: Update order book w/historical data.
+2. Portfolio System send orders to Exchange system
+    i. Iterate over all portfolios. For each order request with success, if the time to send to exchange
+is greater than or equal to the current time, send to exchange. Exchange returns a valid order id or invalid
+if connection failure. If invalid, order request is set to `Reject`
+    ii. Exhcange adds to buffer of orders
+    iii. Add this order to portfolio's order buffer
+3. Exchange System tick
+    i. Iterate over all orders. Fill or not:
+        1. If bid above price, fill at price
+        2. If ask below price, fill at price
+4. Portfolio System tick
+    i. For each portfolio, 
+        1. Update all prices of assets. Consume Feed handler. 
+        2. Update status of all orders. Consume Exchange system.
+5. Portfolio System user script process tick
+    1. Check status of order request. 
+    2. Check status of order.
+
+
+
+
 ## Core code
 Inputs to simulation:
 * tick rate, backtest start time, duration
@@ -172,6 +258,8 @@ funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but
           per exchange if DEX)
     - Member funcs:
         - Get price
+* Feed Handler:
+*   - Member vars: Price, Data sys
 * Portfolio System
     - Member vars:
         - Vector of `{portfolio id, Portfolio}` pairs.
@@ -188,7 +276,7 @@ funds), then error. Else, mark filled or not. Allow querying "ANY" exchange, but
     - `Ask` struct: Ticker string, `size_t` amount
     - `Cancel` struct: `OrderId`
     - `OrderRequest` class
-        * Member vars: Exchange string, `union` of Bid/Ask/Cancel
+        * Member vars: Exchange string, `union` of Bid/Ask/Cancel, time to send to exchange (slippage)
     - `Order` class
         * Member vars: Exchange string, `union` of Bid/Ask/Cancel
 ## Testing
