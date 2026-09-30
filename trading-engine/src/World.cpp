@@ -42,6 +42,8 @@ bool World::tick(const std::chrono::seconds& delta_time) {
     // @TODO(kvathupo): tick systems
     curr_time += delta_time;
 
+    // @TODO(kvathupo): if running with live data, have the data system continuously
+    // tick on a separate process
     if (!dataSystem.tick(curr_time)) {
         return false;
     }
