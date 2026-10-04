@@ -1,0 +1,30 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: Latest
+IndentWidth: 4
+ColumnLimit: 120
+AccessModifierOffset: -4
+PointerAlignment: Left
+NamespaceIndentation: None
+FixNamespaceComments: true
+InsertBraces: true
+RequiresClausePosition: OwnLine
+BreakBeforeConceptDeclarations: Always
+IndentRequiresClause: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: All
+SeparateDefinitionBlocks: Always
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<(gtest|gmock)/'   # third-party (must precede the .h rule)
+    Priority: 3
+  - Regex: '^<[a-z_]+>$'        # C++ standard library
+    Priority: 1
+  - Regex: '^<.*\.h>$'          # POSIX / C system
+    Priority: 2
+  - Regex: '^<'                 # other third-party
+    Priority: 3
+  - Regex: '.*'                 # project "..." headers
+    Priority: 4
+...
