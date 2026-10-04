@@ -21,6 +21,16 @@
 //  - https://stackoverflow.com/questions/73984876/stdquoted-without-using-stream
 namespace te {
 
+namespace {
+
+// Since data is read in chunks of 32 price levels (for each row),
+// there may be fewer than 32 rows left. If so, set the remaining
+// values in the price buffer to this sentinel value to indicate
+// non-existent data.
+constexpr float kSentinel{-1.0f};
+
+}   // end anonymous namespace
+
 // @TODO(kvathupo): use std::from_chars in granularity calc
 // @TODO(kvathupo): add magic_enum as a dep
 bool KrakenParser::init(const InitializationConfig& cfg) noexcept {
@@ -60,6 +70,7 @@ bool KrakenParser::validate_str_to_num(std::errc& error_code, const std::string_
     return true;
 }
 
+// @TODO(kvathupo): set mmap_cursor here
 /*
  *  Requires:
  *      - Each row contain 7 columns
@@ -168,6 +179,18 @@ std::string KrakenParser::get_ticker() {
     return m.str();
 }
 
+std::string_view KrakenParser::get_row_view_with_newline() const {
+    // A row either ends in `\n` or `\n\r`
+    const char* row_start = mmap_address + mmap_cursor;
+    const std::size_t bytes_left_in_file = num_bytes_in_file - mmap_cursor;
+    const char* first_newline_after_row_start = static_cast<const char*>(
+        std::memchr(row_start, '\n', bytes_left_in_file));
+    const std::size_t row_len = first_newline_after_row_start
+        ? static_cast<std::size_t>(first_newline_after_row_start - row_start) + 1
+        : bytes_left_in_file;        // Hit EOF
+    return {row_start, row_len};
+}
+
 KrakenParser::~KrakenParser() {
     if (mmap_address != nullptr && num_bytes_in_file > 0) {
         ::munmap(const_cast<char*>(mmap_address), num_bytes_in_file);
@@ -251,7 +274,7 @@ bool KrakenParser::tick() {
         }
 
         // Move cursor to next row or EOF
-        mmap_cursor += row_len + (first_newline_after_row_start ? 1 : 0);
+        mmap_cursor += row_num_bytes_w_crlf;
         ++csv_row_idx;
 
         // Split row by column, and assign price and price time
@@ -296,8 +319,14 @@ bool KrakenParser::tick() {
 }
 
 bool KrakenParser::has_next_price() {
-// Check if `mmap_cursor == num_bytes_in_file`
-    return true;
+    // Nothing is loaded until the first tick(), which reads the first chunk
+    if (mmap_address == nullptr)
+        return !absolute_file_path.empty();
+    // Prices already read into the buffer, but not yet ticked to
+    if (prices_idx + 1u < prices.size() && prices[prices_idx + 1] != kSentinel)
+        return true;
+    // Rows not yet read into the buffer
+    return mmap_cursor < num_bytes_in_file;
 }
 
 std::optional<float> KrakenParser::get_newest_price() {

@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <string_view>
 
 #include <gtest/gtest_prod.h>
 
@@ -57,6 +58,15 @@ protected:
     bool validate_str_to_num(std::errc& error_code, const std::string_view& validated_str);
 
 private:
+    /*
+     *  Requires the file be mmap'd and `mmap_cursor < num_bytes_in_file`.
+     *
+     *  @returns
+     *      A view of the row at `mmap_cursor`, including its trailing newline if
+     *  present. Its size is the number of bytes to advance past the row.
+     */
+    std::string_view get_row_view_with_newline() const;
+
     std::string absolute_file_path{""};
     // The minimum granularity for a tick
     // There is no guarantee that consecutive rows have a timestamp differing
