@@ -245,9 +245,9 @@ bool KrakenParser::tick() {
     std::size_t num_rows_parsed{0};
     while (num_rows_parsed < prices.size() && mmap_cursor < num_bytes_in_file) {
         std::string_view row = get_row_view_with_newline();
-        const std::size_t row_num_bytes = row.size();
+        const std::size_t row_num_bytes_w_crlf = row.size();
         if (row.ends_with('\n')) row.remove_suffix(1);
-        // windows-written text files append a carriage return to a newline
+        // windows-written text files prepend  a carriage return to a newline
         if (row.ends_with('\r')) row.remove_suffix(1);
         // An empty row marks the end of the data. Consume the rest of the file so
         // `has_next_price()` sees it's exhausted.
@@ -257,7 +257,7 @@ bool KrakenParser::tick() {
         }
 
         // Move cursor to next row or EOF
-        mmap_cursor += row_num_bytes;
+        mmap_cursor += row_num_bytes_w_crlf;
         ++csv_row_idx;
 
         // Split row by column, and assign price and price time
