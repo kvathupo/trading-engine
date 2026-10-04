@@ -8,7 +8,7 @@ class PricingSystem {
 public:
     /*
      *  Iterates over `./data-sources/` and initializes historical data feeds.
-     *  Then iterates all data 
+     *  Then iterates all data
      */
     bool init();
 

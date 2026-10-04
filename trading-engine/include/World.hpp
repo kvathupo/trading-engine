@@ -3,9 +3,8 @@
 #include <memory>
 #include <utility>
 
-#include "Types.hpp"
 #include "DataSystem.hpp"
-
+#include "Types.hpp"
 
 namespace te {
 
@@ -15,12 +14,11 @@ struct World {
      */
     World(const ExecutionMode execution_mode);
 
-    /** 
+    /**
      *  Returns false if already initialized, invalid start date, or any
      *  systems fail to initialize.
      */
-    bool init(const std::chrono::year_month_day& start,
-        const std::size_t& num_days);
+    bool init(const std::chrono::year_month_day& start, const std::size_t& num_days);
     bool tick(const std::chrono::seconds& delta_time);
 
     bool add_data(Exchange exchangeForParser, std::unique_ptr<DataParser> parser);
@@ -34,4 +32,4 @@ struct World {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> curr_time;
 };
 
-}       // end namespace te
+} // end namespace te

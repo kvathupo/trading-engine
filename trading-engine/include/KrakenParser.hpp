@@ -1,8 +1,9 @@
 #pragma once
-#include "DataParser.hpp"
 #include <array>
 
 #include <gtest/gtest_prod.h>
+
+#include "DataParser.hpp"
 
 namespace te {
 
@@ -29,7 +30,7 @@ public:
     virtual std::string get_ticker() override;
 
     /*
-     *  Update the internal state to the next data point. 
+     *  Update the internal state to the next data point.
      *  @returns
      *      True on sucess. Else, False on failure or no more data.
      */
@@ -38,14 +39,13 @@ public:
     virtual std::chrono::sys_seconds get_newest_time() override;
     virtual std::optional<std::chrono::seconds> get_tick_duration() override;
     virtual std::optional<float> get_transaction_fee() override;
-    virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side,
-        std::uint_fast8_t depth) override;
+    virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side, std::uint_fast8_t depth) override;
 
 protected:
     /*
      *  Logs a warning and returns false if the error code from `std::from_chars()`
      *  is populated.
-     * 
+     *
      *  @param error_code
      *      Error code from `std::from_chars()`.
      *  @param validated_str
@@ -63,10 +63,9 @@ private:
     // the row is omitted.
     unsigned long min_tick_s{0};
 
-    
     // Index to current `prices` value
     uint8_t prices_idx{0};
-    // 
+    //
     std::array<float, 32> prices{};
     // Time for each price level. Seconds since unix epoch
     std::array<std::chrono::sys_seconds, 32> price_times{};
@@ -80,7 +79,6 @@ private:
     std::size_t num_bytes_in_file{0};
     std::size_t mmap_cursor{0};
 
-
     /*
      *  Declare gtest friends
      */
@@ -88,4 +86,4 @@ private:
     FRIEND_TEST(KrakenParserTests, parse_multiple_granularities);
 };
 
-}       // end namespace te
+} // end namespace te

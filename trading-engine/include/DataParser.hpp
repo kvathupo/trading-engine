@@ -7,7 +7,6 @@
 
 #include "Types.hpp"
 
-
 namespace te {
 
 constexpr auto min_sys_time = std::chrono::sys_seconds::min();
@@ -32,7 +31,7 @@ struct DataParser {
     virtual std::string get_ticker() = 0;
 
     /*
-     *  Update the internal state to the next data point. 
+     *  Update the internal state to the next data point.
      *  @returns
      *      True on sucess. Else, False on failure or no more data.
      */
@@ -52,8 +51,7 @@ struct DataParser {
      */
     virtual std::optional<std::chrono::seconds> get_tick_duration() = 0;
     virtual std::optional<float> get_transaction_fee() = 0;
-    virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side,
-        std::uint_fast8_t depth) = 0;
+    virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side, std::uint_fast8_t depth) = 0;
 };
 
-}   // end namespace te
+} // end namespace te
