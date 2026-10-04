@@ -31,6 +31,7 @@ come test time _locally_. That way, we don't pollute shit.
 [module import problem](https://www.youtube.com/watch?v=7WK42YSfE9s)
 * Ninja 1.13.1 or later (full CMAKE's module workflow)
 * CMake 4 or later
+* clang-format 20 
 
 ## Building
 First, create a symlink to your global gcm cache:
@@ -45,6 +46,12 @@ MERLIN:~/repos/trading-engine$ mkdir build
 MERLIN:~/repos/trading-engine$ cd build
 MERLIN:~/repos/trading-engine/build$ cmake .. -G Ninja
 MERLIN:~/repos/trading-engine/build$ ninja -j`nproc`
+```
+## Formatting
+Style is defined in `.clang-format`. From the build directory:
+```bash
+MERLIN:~/repos/trading-engine/build$ ninja format          # rewrite sources in place
+MERLIN:~/repos/trading-engine/build$ ninja format-check    # fail if any file would change
 ```
 ## Development Guidelines
 * Export core simulation code as modules

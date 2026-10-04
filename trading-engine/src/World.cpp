@@ -5,13 +5,10 @@
 
 namespace te {
 
-World::World(const ExecutionMode execution_mode):
-    dataSystem{execution_mode}
-{}
+World::World(const ExecutionMode execution_mode) : dataSystem{execution_mode} {}
 
 // @TODO(kvathupo): use std::println() with cerr
-bool World::init(const std::chrono::year_month_day& start,
-        const std::size_t& num_days) {
+bool World::init(const std::chrono::year_month_day& start, const std::size_t& num_days) {
     if (this->start || duration) {
         std::println("Already initialized: ignoring");
         return false;
@@ -48,4 +45,4 @@ bool World::tick(const std::chrono::seconds& delta_time) {
     return true;
 }
 
-}
+} // namespace te

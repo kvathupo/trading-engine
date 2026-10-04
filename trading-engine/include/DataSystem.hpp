@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Types.hpp"
-#include "DataParser.hpp"
-
 #include <chrono>
 #include <memory>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
+#include "DataParser.hpp"
+#include "Types.hpp"
 
 namespace te {
 
@@ -25,7 +24,7 @@ public:
      *  data is read from disk.
      */
     DataSystem(const ExecutionMode execution_mode);
-    
+
     /*
      *  @param start_date
      */
@@ -34,7 +33,7 @@ public:
     /*
      *  If historical data, ticks all data parsers to a time less than or equal to `curr_time`.
      *  Else, grabs the newest data from the exchange.
-     * 
+     *
      *  @param curr_time The time to tick to.
      */
     bool tick(const std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>& curr_time);
@@ -43,8 +42,8 @@ public:
     bool add_data_parser(Exchange exchange, std::unique_ptr<DataParser> parser);
 
     ExecutionMode mExecution_mode;
-    std::vector<Exchange> mExchanges {};
-    std::unordered_map<Exchange, std::vector<std::unique_ptr<DataParser>>> mExchangeToDataSources {};
+    std::vector<Exchange> mExchanges{};
+    std::unordered_map<Exchange, std::vector<std::unique_ptr<DataParser>>> mExchangeToDataSources{};
 };
 
-}   // end namespace te
+} // end namespace te

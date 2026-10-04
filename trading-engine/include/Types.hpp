@@ -11,13 +11,12 @@
 #include <type_traits>
 #include <variant>
 
-
 /*
  *  Used to initialize a financial instrument from either a file or endpoint.
  */
 namespace te {
 
-template<typename T>
+template <typename T>
 concept Arithmetic = std::is_arithmetic<T>::value;
 
 using FilePath = std::string;
@@ -34,18 +33,15 @@ struct InitializationConfig {
 };
 
 enum class ExecutionMode : std::uint_fast8_t {
-    Backtest,       // historical data, simulated portfolios
-    Paper,          // real-time data, simulated portfolios
-    Live,           // real-time data, real portfolios
+    Backtest, // historical data, simulated portfolios
+    Paper,    // real-time data, simulated portfolios
+    Live,     // real-time data, real portfolios
 };
 
 enum class Exchange : std::uint_fast8_t {
     Kraken,
 };
 
-enum class OrderBookSide : std::uint_fast8_t {
-    Bid,
-    Ask
-};
+enum class OrderBookSide : std::uint_fast8_t { Bid, Ask };
 
-}   // end `namespace te`
+} // namespace te
