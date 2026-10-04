@@ -173,19 +173,16 @@ std::string KrakenParser::get_ticker() {
     return m.str();
 }
 
-std::pair<std::string_view, std::size_t> KrakenParser::get_row_view() const {
+std::string_view KrakenParser::get_row_view_with_newline() const {
     // A row either ends in `\n` or `\n\r`
     const char* row_start = mmap_address + mmap_cursor;
     const std::size_t bytes_left_in_file = num_bytes_in_file - mmap_cursor;
     const char* first_newline_after_row_start = static_cast<const char*>(
         std::memchr(row_start, '\n', bytes_left_in_file));
     const std::size_t row_len = first_newline_after_row_start
-        ? static_cast<std::size_t>(first_newline_after_row_start - row_start)
+        ? static_cast<std::size_t>(first_newline_after_row_start - row_start) + 1
         : bytes_left_in_file;        // Hit EOF
-    std::string_view row(row_start, row_len);
-    // windows-written text files append a carriage return to a newline
-    if (row.ends_with('\r')) row.remove_suffix(1);
-    return {row, row_len + (first_newline_after_row_start ? 1 : 0)};
+    return {row_start, row_len};
 }
 
 KrakenParser::~KrakenParser() {
@@ -247,7 +244,11 @@ bool KrakenParser::tick() {
     constexpr std::size_t idx_of_close{4};
     std::size_t num_rows_parsed{0};
     while (num_rows_parsed < prices.size() && mmap_cursor < num_bytes_in_file) {
-        const auto [row, row_num_bytes] = get_row_view();
+        std::string_view row = get_row_view_with_newline();
+        const std::size_t row_num_bytes = row.size();
+        if (row.ends_with('\n')) row.remove_suffix(1);
+        // windows-written text files append a carriage return to a newline
+        if (row.ends_with('\r')) row.remove_suffix(1);
         // An empty row marks the end of the data. Consume the rest of the file so
         // `has_next_price()` sees it's exhausted.
         if (row.empty()) {
@@ -288,8 +289,13 @@ bool KrakenParser::tick() {
     if (num_rows_parsed == 0) return false;
     // A full chunk may stop just short of the end of the data. Peek at the next row
     // so `has_next_price()` is accurate before the next read.
-    if (mmap_cursor < num_bytes_in_file && get_row_view().first.empty())
-        mmap_cursor = num_bytes_in_file;
+    if (mmap_cursor < num_bytes_in_file) {
+        std::string_view next_row = get_row_view_with_newline();
+        if (next_row.ends_with('\n')) next_row.remove_suffix(1);
+        if (next_row.ends_with('\r')) next_row.remove_suffix(1);
+        if (next_row.empty())
+            mmap_cursor = num_bytes_in_file;
+    }
 
     // Set sentinel values
     for (std::size_t i = num_rows_parsed; i < prices.size(); ++i) {

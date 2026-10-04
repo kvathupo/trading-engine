@@ -1,9 +1,7 @@
 #pragma once
 #include "DataParser.hpp"
 #include <array>
-#include <cstddef>
 #include <string_view>
-#include <utility>
 
 #include <gtest/gtest_prod.h>
 
@@ -64,10 +62,10 @@ private:
      *  Requires the file be mmap'd and `mmap_cursor < num_bytes_in_file`.
      *
      *  @returns
-     *      A view of the row at `mmap_cursor` without its line ending, and the bytes
-     *  to advance past it (including its newline).
+     *      A view of the row at `mmap_cursor`, including its trailing newline if
+     *  present. Its size is the number of bytes to advance past the row.
      */
-    std::pair<std::string_view, std::size_t> get_row_view() const;
+    std::string_view get_row_view_with_newline() const;
 
     std::string absolute_file_path{""};
     // The minimum granularity for a tick
