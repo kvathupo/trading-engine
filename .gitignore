@@ -1,3 +1,5 @@
 gcm.cache
 build
 cmake_install.cmake
+
+.worktrees
