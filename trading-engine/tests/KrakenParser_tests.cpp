@@ -82,19 +82,15 @@ TEST(KrakenParserTests, has_next_price_is_correct) {
 
     std::fstream fstrm(fileName);
     std::string row;
-    std::size_t num_rows {0};
+    std::size_t num_rows{0};
     while (std::getline(fstrm, row)) {
         ++num_rows;
     }
 
-
-    te::InitializationConfig initConfig = {
-        .data = fileName,
-        .type = te::InitializationType::FileIo
-    };
+    te::InitializationConfig initConfig = {.data = fileName, .type = te::InitializationType::FileIo};
     KrakenParser parser;
     parser.init(initConfig);
-    std::size_t num_ticks {0};
+    std::size_t num_ticks{0};
     while (parser.tick()) {
         ++num_ticks;
         if (num_ticks != num_rows) {

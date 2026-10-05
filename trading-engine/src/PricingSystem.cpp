@@ -7,8 +7,6 @@ bool PricingSystem::init() {
 }
 
 // grab price from data system
-bool PricingSystem::tick(const DataSystem& dataSystem) {
+bool PricingSystem::tick(const DataSystem& dataSystem) {}
 
-}
-
-}
+} // namespace te

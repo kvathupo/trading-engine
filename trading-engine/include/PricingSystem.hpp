@@ -1,5 +1,6 @@
 #include <chrono>
 #include <unordered_map>
+
 #include <Types.hpp>
 
 namespace te {
@@ -26,4 +27,4 @@ public:
     std::unordered_map<Exchange, std::vector<Instrument>> mExchangeToTickers;
 };
 
-}
+} // namespace te
