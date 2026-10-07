@@ -21,7 +21,7 @@ struct World {
     bool init(const std::chrono::year_month_day& start, const std::size_t& num_days);
     bool tick(const std::chrono::seconds& delta_time);
 
-    bool add_data(Exchange exchangeForParser, std::unique_ptr<DataParser> parser);
+    bool add_data_parser(Exchange exchangeForParser, std::unique_ptr<DataParser> parser);
 
     /** Systems */
     DataSystem dataSystem;

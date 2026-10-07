@@ -31,7 +31,7 @@ TEST(WorldTest, init_date_based) {
     World w{ExecutionMode::Backtest};
     auto parser = std::make_unique<KrakenParser>();
     ASSERT_TRUE(parser->init(kraken_test_data()));
-    ASSERT_TRUE(w.add_data(Exchange::Kraken, std::move(parser)));
+    ASSERT_TRUE(w.add_data_parser(Exchange::Kraken, std::move(parser)));
 
     const year_month_day start_date = year{2023} / February / 1d;
     const year_month_day bad_start_date = year{2023} / November / 31d;
@@ -58,7 +58,7 @@ TEST(WorldTest, tick) {
     World w{ExecutionMode::Backtest};
     auto parser = std::make_unique<KrakenParser>();
     ASSERT_TRUE(parser->init(kraken_test_data()));
-    ASSERT_TRUE(w.add_data(Exchange::Kraken, std::move(parser)));
+    ASSERT_TRUE(w.add_data_parser(Exchange::Kraken, std::move(parser)));
 
     const year_month_day start_date = year{2023} / February / 1d;
     const std::size_t num_days{2};

@@ -31,7 +31,7 @@ bool World::init(const std::chrono::year_month_day& start, const std::size_t& nu
     return true;
 }
 
-bool World::add_data(Exchange exchangeForParser, std::unique_ptr<DataParser> parser) {
+bool World::add_data_parser(Exchange exchangeForParser, std::unique_ptr<DataParser> parser) {
     return dataSystem.add_data_parser(exchangeForParser, std::move(parser));
 }
 
