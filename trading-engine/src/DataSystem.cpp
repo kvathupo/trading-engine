@@ -95,6 +95,7 @@ bool DataSystem::tick(const std::chrono::time_point<std::chrono::system_clock, s
     return !parser_failure;
 }
 
+// @TODO(kvathupo): just get exchange from the parser
 bool DataSystem::add_data_parser(Exchange exchange, std::unique_ptr<DataParser> parser) {
     auto itrToExchange = mExchangeToDataSources.find(exchange);
     if (itrToExchange == mExchangeToDataSources.end()) {
