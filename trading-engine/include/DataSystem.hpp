@@ -43,7 +43,9 @@ public:
 
     ExecutionMode mExecution_mode;
     std::vector<Exchange> mExchanges{};
-    std::unordered_map<Exchange, std::vector<std::unique_ptr<DataParser>>> mExchangeToDataSources{};
+
+    // Kraken exchange
+    std::unordered_map<std::string, std::unique_ptr<DataParser>> mTickerToKrakenParser;
 };
 
 } // end namespace te
