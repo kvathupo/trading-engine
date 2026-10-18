@@ -71,7 +71,7 @@ TEST(KrakenParserTests, parse) {
         EXPECT_EQ(parser.prices_idx, i % kBufferSize)
             << "prices_idx did not match expected position at iteration " << i;
         EXPECT_FLOAT_EQ(*parser.get_newest_price(), expected_prices[i]) << "Unexpected price at iteration " << i;
-        EXPECT_EQ(parser.get_newest_time(), sys_seconds(seconds(expected_epoch_seconds[i])))
+        EXPECT_EQ(parser.get_newest_time(), TimePoint(seconds(expected_epoch_seconds[i])))
             << "Unexpected time at iteration " << i;
     }
 }
@@ -155,8 +155,7 @@ TEST(KrakenParserTests, parse_multiple_granularities) {
                 std::ranges::views::split(row, ',') | std::ranges::to<std::vector<std::string>>();
             std::string timeStr = columnsInRow[idx_of_time];
             const unsigned long secondsSinceUnixEpoch = std::stol(timeStr);
-            std::chrono::sys_seconds expectedSeconds =
-                std::chrono::sys_seconds(std::chrono::seconds(secondsSinceUnixEpoch));
+            TimePoint expectedSeconds = TimePoint(std::chrono::seconds(secondsSinceUnixEpoch));
             EXPECT_EQ(expectedSeconds, parser.get_newest_time());
 
             std::string priceStr = columnsInRow[idx_of_close];

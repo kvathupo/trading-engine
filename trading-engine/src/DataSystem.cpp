@@ -32,7 +32,7 @@ bool DataSystem::init(const std::chrono::year_month_day start_date) {
         return false;
     }
 
-    const std::chrono::sys_seconds start_time{std::chrono::sys_days{start_date}};
+    const TimePoint start_time{std::chrono::sys_days{start_date}};
     for (auto itr = mTickerToKrakenParser.begin(); itr != mTickerToKrakenParser.end();) {
         const auto& [ticker, parser_ptr] = *itr;
         DataParser& parser = *parser_ptr;
@@ -67,7 +67,7 @@ bool DataSystem::init(const std::chrono::year_month_day start_date) {
     return true;
 }
 
-bool DataSystem::tick(const std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds>& curr_time) {
+bool DataSystem::tick(const TimePoint& curr_time) {
     // With live data, the system is ticks independently on its own thread.
     // Ticking is done at its preconfigured tick rate.
     if (mExecution_mode != ExecutionMode::Backtest) {
@@ -84,6 +84,7 @@ bool DataSystem::tick(const std::chrono::time_point<std::chrono::system_clock, s
             continue;
         }
 
+        // @TODO(kvathupo): rm parser on exhaustion
         while (parser.get_newest_time() + *tick_duration <= curr_time) {
             if (!parser.tick()) {
                 std::println("{} on {} exhausted its data at {}", ticker, to_string(Exchange::Kraken),
@@ -103,6 +104,19 @@ bool DataSystem::add_data_parser(Exchange exchange, std::unique_ptr<DataParser> 
     }
     mTickerToKrakenParser.insert({parser->get_ticker(), std::move(parser)});
     return true;
+}
+
+std::optional<float> DataSystem::get_most_recent_price_for(Exchange exchange, std::string ticker,
+        std::optional<TimePoint> request_time) {
+    if (mExecution_mode == ExecutionMode::Backtest) {
+        // 0. If `newest_time` is not populated, log an error. Add a TODO comment to assert here.
+        // 1. Match exchange to container (switch statement), else log error and return std::nullopt (default case)
+        // 2. With the container, use the ticker to lookup the parser. Else, return std::nullopt.
+        // 3. With the parser, if the most recent time on the parser is less than or equal to the request_time,
+        // then log an error and return std::nullopt. Else, return the newest price.
+    }
+
+    return std::nullopt;
 }
 
 } // end namespace te

@@ -9,7 +9,7 @@
 
 namespace te {
 
-constexpr auto min_sys_time = std::chrono::sys_seconds::min();
+constexpr auto min_sys_time = TimePoint::min();
 
 struct DataParser {
     DataParser() = default;
@@ -42,7 +42,7 @@ struct DataParser {
      *  Returns time corresponding to newest price, else min_sys_time on failure.
      *  Current minimum granularity across data feeds is one second.
      */
-    virtual std::chrono::sys_seconds get_newest_time() = 0;
+    virtual TimePoint get_newest_time() = 0;
     /*
      *  The minimum possible duration between subsequent ticks in a data feed.
      *  We assume no subsecond granularity for all data sources.

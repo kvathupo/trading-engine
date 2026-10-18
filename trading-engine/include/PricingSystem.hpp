@@ -1,5 +1,6 @@
 #include <chrono>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <Types.hpp>
 
@@ -18,13 +19,18 @@ public:
     bool init();
 
     /*
-     *  Updates all price buffers from the data system.
+     *  Updates all price buffers from the data system if historical data.
      */
     bool tick(const DataSystem& dataSystem);
     void populateActiveTickers(const DataSystem& dataSystem);
 
+    bool add_instrument(Exchange exchangeForTicker, const std::string& ticker);
+
     ExecutionMode mExecution_mode;
-    std::unordered_map<Exchange, std::vector<Instrument>> mExchangeToTickers;
+
+    // Kraken exchange
+    std::unordered_set<std::string> mTickersKraken;
+    std::unordered_map<std::string, float> mTickerToPriceKraken;
 };
 
 } // namespace te

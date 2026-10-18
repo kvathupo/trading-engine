@@ -295,7 +295,7 @@ bool KrakenParser::tick() {
         }
 
         prices[num_rows_parsed] = price;
-        price_times[num_rows_parsed] = std::chrono::sys_seconds{std::chrono::seconds{epoch_s}};
+        price_times[num_rows_parsed] = TimePoint{std::chrono::seconds{epoch_s}};
         ++num_rows_parsed;
     }
     if (num_rows_parsed == 0) {
@@ -345,7 +345,7 @@ std::optional<float> KrakenParser::get_newest_price() {
     return prices[prices_idx];
 }
 
-std::chrono::sys_seconds KrakenParser::get_newest_time() {
+TimePoint KrakenParser::get_newest_time() {
     if (absolute_file_path.empty()) {
         return min_sys_time;
     }

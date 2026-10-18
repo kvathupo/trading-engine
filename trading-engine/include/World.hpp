@@ -28,8 +28,7 @@ struct World {
 
     std::optional<std::chrono::year_month_day> start = {};
     std::optional<std::chrono::minutes> duration = {};
-    // @TODO(kvathupo): Move to dedicated header to not repeat time defs in datasystem, etc?
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> curr_time;
+    TimePoint curr_time;
 };
 
 } // end namespace te

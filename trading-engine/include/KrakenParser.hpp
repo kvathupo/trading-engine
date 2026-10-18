@@ -38,7 +38,7 @@ public:
     virtual bool tick() override;
     virtual bool has_next_price() override;
     virtual std::optional<float> get_newest_price() override;
-    virtual std::chrono::sys_seconds get_newest_time() override;
+    virtual TimePoint get_newest_time() override;
     virtual std::optional<std::chrono::seconds> get_tick_duration() override;
     virtual std::optional<float> get_transaction_fee() override;
     virtual std::optional<std::vector<float>> get_order_book(OrderBookSide side, std::uint_fast8_t depth) override;
@@ -79,7 +79,7 @@ private:
     //
     std::array<float, 32> prices{};
     // Time for each price level. Seconds since unix epoch
-    std::array<std::chrono::sys_seconds, 32> price_times{};
+    std::array<TimePoint, 32> price_times{};
 
     // Zero-indexed row number corresponding to the price at
     // the end of the queue
