@@ -45,10 +45,15 @@ public:
      *  Queries exchange for most recent price data. If using historical data,
      *  the price is the most recent price less than or equal to `newest_time`.
      *
-     *  @param exchange: Exchange for ticker
-     *  @param ticker: Ticker on exchange
-     *  @param request_time: Required with historical data to prevent peeking
+     *  @param exchange Exchange for ticker
+     *  @param ticker Ticker on exchange
+     *  @param request_time Required with historical data to prevent peeking
      *  at future prices.
+     *
+     *  @return
+     *      - If historical data, populated optional if there's price data at
+     *  a time less than or equal to the requested time.
+     *      - If live data, populated optional on connectivity.
      */
     std::optional<float> get_most_recent_price_for(Exchange exchange, std::string ticker,
                                                    std::optional<TimePoint> request_time);
