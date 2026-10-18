@@ -30,6 +30,19 @@ public:
      */
     bool add_instrument(Exchange exchangeForTicker, const std::string& ticker);
 
+    /*
+     *  Returns the most recent price if present.
+     *
+     *  @param exchange Exchange for ticker
+     *  @param ticker Ticker on exchange
+     *
+     *  @return
+     *      - If historical data, populated optional if there's price data at
+     *  the most recent sim time.
+     *      - If live data, populated optional on exchange connectivity.
+     */
+    std::optional<float> get_most_recent_price_for(Exchange exchange, std::string ticker) const;
+
 private:
     void populateActiveTickers(const DataSystem& dataSystem, const TimePoint curr_time);
 

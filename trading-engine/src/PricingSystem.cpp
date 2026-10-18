@@ -25,6 +25,16 @@ bool PricingSystem::tick(const DataSystem& dataSystem, const TimePoint curr_time
     return true;
 }
 
+std::optional<float> PricingSystem::get_most_recent_price_for(Exchange exchange, std::string ticker) const {
+    if (exchange == Exchange::Kraken) {
+        auto itrToTickerPricePair = mTickerToPriceKraken.find(ticker);
+        if (itrToTickerPricePair != mTickerToPriceKraken.end()) {
+            return itrToTickerPricePair->second;
+        }
+    }
+    return std::nullopt;
+}
+
 void PricingSystem::populateActiveTickers(const DataSystem& dataSystem, const TimePoint curr_time) {
     for (const auto& krakenTicker : mTickersKraken) {
         std::optional<float> maybePrice =
