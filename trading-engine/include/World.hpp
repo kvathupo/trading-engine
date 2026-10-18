@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "DataSystem.hpp"
+#include "PricingSystem.hpp"
 #include "Types.hpp"
 
 namespace te {
@@ -25,10 +26,12 @@ struct World {
 
     /** Systems */
     DataSystem dataSystem;
+    PricingSystem pricingSystem;
 
     std::optional<std::chrono::year_month_day> start = {};
     std::optional<std::chrono::minutes> duration = {};
     TimePoint curr_time;
+    const ExecutionMode mExecution_mode;
 };
 
 } // end namespace te

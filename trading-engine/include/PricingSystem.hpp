@@ -24,6 +24,11 @@ public:
     bool tick(const DataSystem& dataSystem);
     void populateActiveTickers(const DataSystem& dataSystem);
 
+    /*
+     *  When an instrument is added, its price data is tracked every frame.
+     *
+     *  @returns: False if the exchange is unsupported.
+     */
     bool add_instrument(Exchange exchangeForTicker, const std::string& ticker);
 
     ExecutionMode mExecution_mode;
