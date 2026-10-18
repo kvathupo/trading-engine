@@ -4,6 +4,7 @@
  *  Used for type-checking of template inputs.
  */
 
+#include <chrono>
 #include <concepts>
 #include <cstdint>
 #include <optional>
@@ -20,6 +21,9 @@ template <typename T>
 concept Arithmetic = std::is_arithmetic<T>::value;
 
 using FilePath = std::string;
+
+/** Dictates system granularity */
+using TimePoint = std::chrono::sys_seconds;
 
 enum class InitializationType : std::uint_fast8_t {
     FileIo,

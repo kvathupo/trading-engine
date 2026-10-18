@@ -31,7 +31,7 @@ TEST(WorldTest, init_date_based) {
     World w{ExecutionMode::Backtest};
     auto parser = std::make_unique<KrakenParser>();
     ASSERT_TRUE(parser->init(kraken_test_data()));
-    ASSERT_TRUE(w.add_data(Exchange::Kraken, std::move(parser)));
+    ASSERT_TRUE(w.add_data_parser(Exchange::Kraken, std::move(parser)));
 
     const year_month_day start_date = year{2023} / February / 1d;
     const year_month_day bad_start_date = year{2023} / November / 31d;
@@ -58,7 +58,7 @@ TEST(WorldTest, tick) {
     World w{ExecutionMode::Backtest};
     auto parser = std::make_unique<KrakenParser>();
     ASSERT_TRUE(parser->init(kraken_test_data()));
-    ASSERT_TRUE(w.add_data(Exchange::Kraken, std::move(parser)));
+    ASSERT_TRUE(w.add_data_parser(Exchange::Kraken, std::move(parser)));
 
     const year_month_day start_date = year{2023} / February / 1d;
     const std::size_t num_days{2};
@@ -67,12 +67,12 @@ TEST(WorldTest, tick) {
     const seconds expected_delta_time_s{60};
     const std::size_t minutes_in_day(1440);
     for (std::size_t min = 0; min < minutes_in_day; ++min) {
-        const auto prev_time(w.curr_time);
+        const auto prev_time(w.get_curr_time());
         EXPECT_TRUE(w.tick(expected_delta_time_s));
-        const auto curr_time(w.curr_time);
+        const auto curr_time(w.get_curr_time());
         const auto delta_time_s = duration_cast<seconds>(curr_time - prev_time);
         EXPECT_EQ(delta_time_s, expected_delta_time_s);
     }
     const year_month_day expected_end_date = year{2023} / February / 2d;
-    EXPECT_EQ(w.curr_time, sys_days(expected_end_date));
+    EXPECT_EQ(w.get_curr_time(), sys_days(expected_end_date));
 }

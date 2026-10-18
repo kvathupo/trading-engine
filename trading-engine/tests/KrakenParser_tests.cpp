@@ -71,8 +71,33 @@ TEST(KrakenParserTests, parse) {
         EXPECT_EQ(parser.prices_idx, i % kBufferSize)
             << "prices_idx did not match expected position at iteration " << i;
         EXPECT_FLOAT_EQ(*parser.get_newest_price(), expected_prices[i]) << "Unexpected price at iteration " << i;
-        EXPECT_EQ(parser.get_newest_time(), sys_seconds(seconds(expected_epoch_seconds[i])))
+        EXPECT_EQ(parser.get_newest_time(), TimePoint(seconds(expected_epoch_seconds[i])))
             << "Unexpected time at iteration " << i;
+    }
+}
+
+TEST(KrakenParserTests, has_next_price_is_correct) {
+    // small dataset
+    const std::string fileName{std::string(TEST_DATA_DIR) + "./kraken/OHLCVT_Q1_2023/ZECUSD_1440.csv"};
+
+    std::fstream fstrm(fileName);
+    std::string row;
+    std::size_t num_rows{0};
+    while (std::getline(fstrm, row)) {
+        ++num_rows;
+    }
+
+    te::InitializationConfig initConfig = {.data = fileName, .type = te::InitializationType::FileIo};
+    KrakenParser parser;
+    parser.init(initConfig);
+    std::size_t num_ticks{0};
+    while (parser.tick()) {
+        ++num_ticks;
+        if (num_ticks != num_rows) {
+            EXPECT_TRUE(parser.has_next_price()) << "There should be more price levels since there are more rows!";
+        } else {
+            EXPECT_FALSE(parser.has_next_price()) << std::format("We should be at the last price after {}", num_ticks);
+        }
     }
 }
 
@@ -130,8 +155,7 @@ TEST(KrakenParserTests, parse_multiple_granularities) {
                 std::ranges::views::split(row, ',') | std::ranges::to<std::vector<std::string>>();
             std::string timeStr = columnsInRow[idx_of_time];
             const unsigned long secondsSinceUnixEpoch = std::stol(timeStr);
-            std::chrono::sys_seconds expectedSeconds =
-                std::chrono::sys_seconds(std::chrono::seconds(secondsSinceUnixEpoch));
+            TimePoint expectedSeconds = TimePoint(std::chrono::seconds(secondsSinceUnixEpoch));
             EXPECT_EQ(expectedSeconds, parser.get_newest_time());
 
             std::string priceStr = columnsInRow[idx_of_close];

@@ -1,28 +1,23 @@
 # Last Time
-* Thinking through design of client side. See `Arch.md`.
-* Write Data System (See `Arch.md`)
-    - Writing out `tick()` logic in `Arch.md`. -> CURR - vibe-code linter and yaml parser for ctor
-        - Unknowns:
-            - Should the `Universe` hold anything, other than refs to systems?
-            - How to handle live trading in all systems
-    - Writing ctor
-        - Want to make configurable in yaml:
-            - Data for a given exchange is in one directory, which contains all assets of differing
-              granularites. Deconflict the assets by prefix string. Deconflict granularities with suffix
-              string.
-        - Mapping from exchange to directory if historical data.
-            - Require same granularity for now. Take the one big CSV approach.
-        - Mapping from exchange to endpoint with auth keys (DANGER!) if live.
-    - Subsume into Price system?
-* Data System API
-* Data Parser implementation
-* Data System implementation
-* Pricing System
+* Thinking through design of client side. See `Arch.md`. -> DONE
+* Doing the Make orders work flow -> CURR
+    - Merge in branch with feed handler getting prices from data system
+        i. Implement `KrakenParser::has_next_price()` -> DONE
+        ii. Implement `DataSystem::get_newest_price()` ->  DONE
+        iii. Implement `PricingSystem::tick()` -> DONE
+
+
+
+* Do camelcase and snake case shit
+    - Check conventions I use in linter (google vs Clang)
+* Make ECS 
+    - hash maps into vectors ordered by id
+        - Log(n) insertion and search
+    - Why maintain maps internally? Just have users do that and send back all the shit.
 
 * Set up LSP with vim
     - https://copilot.microsoft.com/shares/nxzwYu8DM1d7EnqKiVfW8
     - https://jonasdevlieghere.com/post/vim-lsp-clangd/
-* Set up linter
 * Clean up CMake setup
     - Kraken Parser links against a shared trading
 library

@@ -5,7 +5,7 @@
 
 namespace te {
 
-World::World(const ExecutionMode execution_mode) : dataSystem{execution_mode} {}
+World::World(const ExecutionMode execution_mode) : dataSystem{execution_mode}, mExecution_mode{execution_mode} {}
 
 // @TODO(kvathupo): use std::println() with cerr
 bool World::init(const std::chrono::year_month_day& start, const std::size_t& num_days) {
@@ -24,6 +24,10 @@ bool World::init(const std::chrono::year_month_day& start, const std::size_t& nu
         std::println(std::cerr, "Data system failed to initialize");
         return false;
     }
+    if (!pricingSystem.init(mExecution_mode)) {
+        std::println(std::cerr, "Pricing system failed to initialize");
+        return false;
+    }
     this->start = start;
     duration = std::chrono::days(1) * num_days;
     curr_time = std::chrono::sys_days(start);
@@ -31,17 +35,30 @@ bool World::init(const std::chrono::year_month_day& start, const std::size_t& nu
     return true;
 }
 
-bool World::add_data(Exchange exchangeForParser, std::unique_ptr<DataParser> parser) {
-    return dataSystem.add_data_parser(exchangeForParser, std::move(parser));
+bool World::add_data_parser(Exchange exchangeForParser, std::unique_ptr<DataParser> parser) {
+    return pricingSystem.add_instrument(exchangeForParser, parser->get_ticker()) &&
+           dataSystem.add_data_parser(exchangeForParser, std::move(parser));
+}
+
+TimePoint World::get_curr_time() const {
+    return curr_time;
 }
 
 bool World::tick(const std::chrono::seconds& delta_time) {
     // @TODO(kvathupo): tick systems
     curr_time += delta_time;
 
-    if (!dataSystem.tick(curr_time)) {
-        return false;
+    if (mExecution_mode == ExecutionMode::Backtest) {
+        // With live data, price data is on demand.
+        if (!dataSystem.tick(curr_time)) {
+            return false;
+        }
+
+        if (!pricingSystem.tick(dataSystem, curr_time)) {
+            return false;
+        }
     }
+
     return true;
 }
 
