@@ -4,14 +4,8 @@
 
 namespace te {
 
-namespace {
-
-// Dummy price held by each ticker until the exchange is queried
-constexpr float kSentinelPrice{-1.0f};
-
-} // namespace
-
-bool PricingSystem::init() {
+bool PricingSystem::init(const ExecutionMode execution_mode) {
+    mExecution_mode = execution_mode;
     return true;
 }
 
@@ -49,7 +43,6 @@ void PricingSystem::populateActiveTickers(const DataSystem& dataSystem, const Ti
 bool PricingSystem::add_instrument(Exchange exchangeForTicker, const std::string& ticker) {
     if (exchangeForTicker == Exchange::Kraken) {
         mTickersKraken.insert(ticker);
-        mTickerToPriceKraken.insert({ticker, kSentinelPrice});
         return true;
     }
     return false;

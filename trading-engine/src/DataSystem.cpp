@@ -131,9 +131,12 @@ std::optional<float> DataSystem::get_most_recent_price_for(Exchange exchange, st
             return std::nullopt;
         }
 
+        // TODO(kvathupo): make debug after spdlog added
         if (parser->get_newest_time() > *request_time) {
-            std::println(std::cerr, "{}:{} has newest price at {}, after request time {}", to_string(exchange), ticker,
-                         parser->get_newest_time(), *request_time);
+            /*
+                        std::println(std::cerr, "{}:{} has newest price at {}, after request time {}",
+               to_string(exchange), ticker, parser->get_newest_time(), *request_time);
+            */
             return std::nullopt;
         }
         return parser->get_newest_price();

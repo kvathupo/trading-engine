@@ -23,6 +23,7 @@ struct World {
     bool tick(const std::chrono::seconds& delta_time);
 
     bool add_data_parser(Exchange exchangeForParser, std::unique_ptr<DataParser> parser);
+    TimePoint get_curr_time() const;
 
     /** Systems */
     DataSystem dataSystem;
@@ -30,8 +31,10 @@ struct World {
 
     std::optional<std::chrono::year_month_day> start = {};
     std::optional<std::chrono::minutes> duration = {};
-    TimePoint curr_time;
     const ExecutionMode mExecution_mode;
+
+private:
+    TimePoint curr_time;
 };
 
 } // end namespace te

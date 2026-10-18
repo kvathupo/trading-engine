@@ -24,7 +24,7 @@ bool World::init(const std::chrono::year_month_day& start, const std::size_t& nu
         std::println(std::cerr, "Data system failed to initialize");
         return false;
     }
-    if (!pricingSystem.init()) {
+    if (!pricingSystem.init(mExecution_mode)) {
         std::println(std::cerr, "Pricing system failed to initialize");
         return false;
     }
@@ -38,6 +38,10 @@ bool World::init(const std::chrono::year_month_day& start, const std::size_t& nu
 bool World::add_data_parser(Exchange exchangeForParser, std::unique_ptr<DataParser> parser) {
     return pricingSystem.add_instrument(exchangeForParser, parser->get_ticker()) &&
            dataSystem.add_data_parser(exchangeForParser, std::move(parser));
+}
+
+TimePoint World::get_curr_time() const {
+    return curr_time;
 }
 
 bool World::tick(const std::chrono::seconds& delta_time) {

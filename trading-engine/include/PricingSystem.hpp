@@ -16,7 +16,7 @@ using Instrument = std::pair<std::string, float>;
  */
 class PricingSystem {
 public:
-    bool init();
+    bool init(const ExecutionMode execution_mode);
 
     /*
      *  Updates all price buffers from the data system if historical data.
