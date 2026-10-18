@@ -107,7 +107,7 @@ bool DataSystem::add_data_parser(Exchange exchange, std::unique_ptr<DataParser> 
 }
 
 std::optional<float> DataSystem::get_most_recent_price_for(Exchange exchange, std::string ticker,
-                                                           std::optional<TimePoint> request_time) {
+                                                           std::optional<TimePoint> request_time) const {
     if (mExecution_mode == ExecutionMode::Backtest) {
         // @TODO(kvathupo): assert here
         if (!request_time) {

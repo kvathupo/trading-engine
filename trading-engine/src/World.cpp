@@ -50,7 +50,7 @@ bool World::tick(const std::chrono::seconds& delta_time) {
             return false;
         }
 
-        if (!pricingSystem.tick(dataSystem)) {
+        if (!pricingSystem.tick(dataSystem, curr_time)) {
             return false;
         }
     }

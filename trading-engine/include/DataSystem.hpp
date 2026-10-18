@@ -56,7 +56,7 @@ public:
      *      - If live data, populated optional on connectivity.
      */
     std::optional<float> get_most_recent_price_for(Exchange exchange, std::string ticker,
-                                                   std::optional<TimePoint> request_time);
+                                                   std::optional<TimePoint> request_time) const;
 
     ExecutionMode mExecution_mode;
     std::vector<Exchange> mExchanges{};

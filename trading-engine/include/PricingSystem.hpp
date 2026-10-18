@@ -21,8 +21,7 @@ public:
     /*
      *  Updates all price buffers from the data system if historical data.
      */
-    bool tick(const DataSystem& dataSystem);
-    void populateActiveTickers(const DataSystem& dataSystem);
+    bool tick(const DataSystem& dataSystem, const TimePoint curr_time);
 
     /*
      *  When an instrument is added, its price data is tracked every frame.
@@ -30,6 +29,9 @@ public:
      *  @returns: False if the exchange is unsupported.
      */
     bool add_instrument(Exchange exchangeForTicker, const std::string& ticker);
+
+private:
+    void populateActiveTickers(const DataSystem& dataSystem, const TimePoint curr_time);
 
     ExecutionMode mExecution_mode;
 
